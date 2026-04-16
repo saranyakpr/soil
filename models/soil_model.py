@@ -899,6 +899,7 @@ class SoilAIModel:
         import h5py
         import json
         from tensorflow.keras.models import load_model
+        self.model = None
 
         # 1. மாடல் கன்பிக் (Config) திருத்தம்
         try:
@@ -941,8 +942,7 @@ class SoilAIModel:
         try:
             self.model = load_model(model_path, compile=False)
         except Exception as e:
-            print(f"Loading failed again: {e}")
-            raise e
+            print(f"AI model unavailable, RGB fallback will be used: {e}")
 
         self.classes = [
           "Alluvial Soil",
@@ -956,6 +956,8 @@ class SoilAIModel:
         ]
 
     def predict(self, image_path):
+        if self.model is None:
+            raise RuntimeError("AI model is unavailable")
 
         img = Image.open(image_path).convert("RGB")
         img = img.resize((224,224))
