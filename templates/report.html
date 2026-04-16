@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soil Report — Soil Vision 360</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── VARIABLES ── */
+    :root {
+      --bg:       #07090e;
+      --surface:  #0f1218;
+      --card:     #141920;
+      --border:   rgba(255,255,255,0.08);
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --accent:   #10b981;
+      --accent2:  #06b6d4;
+      --danger:   #ef4444;
+      --warn:     #f59e0b;
+      --radius:   16px;
+      --r-sm:      9px;
+      --mono:     'JetBrains Mono', monospace;
+      --main:     'Space Grotesk', sans-serif;
+      --display:  'Syne', sans-serif;
+
+      /* dynamic soil theme */
+      --soil-primary: #10b981;
+      --soil-bg:      rgba(16,185,129,0.06);
+      --soil-border:  rgba(16,185,129,0.2);
+    }
+
+    /* soil themes */
+    .t-black  { --soil-primary:#9ca3af; --soil-bg:rgba(100,116,139,0.06); --soil-border:rgba(100,116,139,0.2); }
+    .t-red    { --soil-primary:#f87171; --soil-bg:rgba(239,68,68,0.06);   --soil-border:rgba(239,68,68,0.2);   }
+    .t-yellow { --soil-primary:#fbbf24; --soil-bg:rgba(245,158,11,0.06);  --soil-border:rgba(245,158,11,0.2);  }
+    .t-brown  { --soil-primary:#d97706; --soil-bg:rgba(217,119,6,0.06);   --soil-border:rgba(217,119,6,0.2);   }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body  { font-family: var(--main); background: var(--bg); color: var(--text);
+            min-height: 100vh; transition: all 0.6s ease; }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px;
+      background: rgba(7,9,14,0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-brand { font-family: var(--display); font-size: 1.1rem; font-weight: 800; }
+    .topbar-brand .acc  { color: var(--soil-primary); }
+    .topbar-actions { display: flex; gap: 10px; }
+    .tb-btn {
+      padding: 7px 16px; border-radius: 8px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; font-family: var(--main);
+      border: 1px solid var(--border); background: transparent; color: var(--muted);
+    }
+    .tb-btn:hover { border-color: var(--soil-primary); color: var(--soil-primary); }
+    .tb-btn.primary { background: var(--soil-primary); color: #000; border-color: var(--soil-primary); }
+    .tb-btn.primary:hover { opacity: 0.85; }
+
+    /* ── WRAPPER ── */
+    .report-wrapper { max-width: 1100px; margin: 0 auto; padding: 32px 24px 60px; }
+
+    /* ── HERO HEADER ── */
+    .report-hero {
+      background: var(--soil-bg);
+      border: 1px solid var(--soil-border);
+      border-radius: var(--radius);
+      padding: 32px 36px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .report-hero::before {
+      content: '';
+      position: absolute; top: -40px; right: -40px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, var(--soil-primary) 0%, transparent 70%);
+      opacity: 0.06; pointer-events: none;
+    }
+
+    .hero-eyebrow { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em;
+                    color: var(--soil-primary); margin-bottom: 8px; font-weight: 600; }
+    .hero-title { font-family: var(--display); font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800;
+                  line-height: 1.1; margin-bottom: 10px; }
+    .hero-title .highlight { color: var(--soil-primary); }
+    .hero-desc { color: var(--muted); font-size: 0.9rem; max-width: 480px; line-height: 1.6; margin-bottom: 18px; }
+
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; }
+    .meta-pill {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; color: var(--muted);
+    }
+    .meta-pill .key { color: var(--muted); }
+    .meta-pill .val { color: var(--text); font-weight: 600; }
+
+    .soil-id-hero {
+      text-align: center;
+      background: rgba(0,0,0,0.3); border: 1px solid var(--soil-border);
+      border-radius: var(--radius); padding: 20px 28px;
+      flex-shrink: 0;
+    }
+    .soil-id-label-hero { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em;
+                          color: var(--muted); margin-bottom: 6px; }
+    .soil-id-code { font-family: var(--mono); font-size: 1.3rem; font-weight: 700;
+                    color: var(--soil-primary); letter-spacing: 0.05em; }
+    .qr-placeholder {
+      width: 80px; height: 80px; margin: 10px auto 0;
+      background: white; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; color: #666; padding: 4px; text-align: center;
+    }
+    .qr-placeholder img { width: 100%; height: 100%; object-fit: contain; }
+
+    /* ── SECTION ── */
+    .section-label {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--soil-primary); font-weight: 700; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--soil-border); }
+
+    /* ── SCORE GRID ── */
+    .score-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px; }
+    .score-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--r-sm);
+      padding: 18px 14px; text-align: center; transition: all 0.3s;
+    }
+    .score-card:hover { border-color: var(--soil-border); transform: translateY(-3px);
+                        box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .sc-icon  { font-size: 1.4rem; margin-bottom: 8px; }
+    .sc-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .sc-value {
+      font-family: var(--display); font-size: 1.8rem; font-weight: 800;
+      color: var(--soil-primary); line-height: 1;
+    }
+    .sc-unit  { font-size: 0.9rem; color: var(--muted); }
+    .sc-bar   { margin-top: 10px; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+    .sc-bar-fill { height: 100%; border-radius: 2px; background: var(--soil-primary);
+                   width: 0; transition: width 1.5s cubic-bezier(0.23,1,0.32,1); }
+    .sc-rating { font-size: 0.7rem; color: var(--muted); margin-top: 5px; }
+
+    /* ── MAIN CONTENT GRID ── */
+    .content-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; margin-bottom: 24px; }
+
+    /* ── CARD ── */
+    .report-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 22px;
+    }
+    .card-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 18px;
+                  display: flex; align-items: center; gap: 8px; }
+
+    /* ── SOIL IMAGE ── */
+    .soil-image-wrap {
+      position: relative; border-radius: var(--r-sm); overflow: hidden;
+      aspect-ratio: 4/3; background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+    }
+    .soil-image-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .image-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      padding: 16px; font-size: 0.8rem; color: rgba(255,255,255,0.8);
+    }
+    .no-image { display: flex; flex-direction: column; align-items: center; justify-content: center;
+                height: 100%; color: var(--muted); gap: 8px; font-size: 0.85rem; }
+
+    /* RGB swatch */
+    .rgb-swatch {
+      margin-top: 14px; display: flex; gap: 10px; align-items: center;
+    }
+    .swatch-box { width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;
+                  border: 1px solid var(--border); }
+    .swatch-info { font-size: 0.82rem; }
+    .swatch-hex  { font-family: var(--mono); color: var(--soil-primary); font-weight: 700; }
+    .swatch-rgb  { color: var(--muted); font-size: 0.75rem; }
+
+    /* ── PHYSICAL PROPS ── */
+    .props-list { display: flex; flex-direction: column; gap: 10px; }
+    .prop-row { display: flex; justify-content: space-between; align-items: center;
+                font-size: 0.85rem; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .prop-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .prop-key { color: var(--muted); }
+    .prop-val { font-weight: 600; color: var(--text); }
+    .prop-val.accent { color: var(--soil-primary); }
+
+    /* ── NUTRIENTS ── */
+    .nutrients-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .nut-item { display: flex; flex-direction: column; gap: 5px; }
+    .nut-label { display: flex; justify-content: space-between; font-size: 0.78rem; }
+    .nut-name  { color: var(--muted); }
+    .nut-pct   { color: var(--soil-primary); font-family: var(--mono); font-weight: 700; }
+    .nut-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+    .nut-fill  { height: 100%; border-radius: 3px; background: var(--soil-primary);
+                 width: 0; transition: width 1.5s ease; }
+
+    /* ── RISK PANEL ── */
+    .risk-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .risk-item {
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .risk-name  { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .risk-value { font-weight: 700; font-size: 0.88rem; }
+    .r-low    { color: #10b981; }
+    .r-medium { color: #f59e0b; }
+    .r-high   { color: #ef4444; }
+    .r-critical { color: #ef4444; }
+    .r-very-high{ color: #ef4444; }
+
+    /* ── CROP RECS ── */
+    .crop-cols  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .crop-group { display: flex; flex-direction: column; gap: 6px; }
+    .crop-group-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase;
+                        letter-spacing: 0.06em; margin-bottom: 4px; }
+    .crop-tags  { display: flex; flex-wrap: wrap; gap: 5px; }
+    .crop-tag   { font-size: 0.75rem; padding: 3px 10px; border-radius: 20px;
+                  background: var(--soil-bg); border: 1px solid var(--soil-border);
+                  color: var(--soil-primary); font-weight: 600; }
+    .crop-tag.avoid { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2); color: #ef4444; }
+    .crop-tag.secondary { background: rgba(255,255,255,0.04); border-color: var(--border); color: var(--muted); }
+
+    .crop-details { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .crop-detail-item { background: rgba(255,255,255,0.02); border-radius: var(--r-sm);
+                        padding: 10px 12px; font-size: 0.82rem; }
+    .cd-key { font-size: 0.7rem; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .cd-val { color: var(--text); }
+
+    /* ── CONSTRUCTION ── */
+    .house-section { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: start; }
+    .house-visual { width: 160px; }
+    .house-svg { width: 100%; }
+
+    .h-body     { transition: all 0.5s; }
+    .h-roof     { transition: all 0.5s; }
+    .h-door     { }
+    .h-win      { }
+    .h-crack    { opacity: 0; fill: none; stroke: #ef4444; stroke-width: 2; stroke-linecap: round; }
+
+    .const-list { display: flex; flex-direction: column; gap: 10px; }
+    .const-row  { display: flex; justify-content: space-between; align-items: flex-start;
+                  font-size: 0.85rem; padding: 8px 12px; background: rgba(255,255,255,0.02);
+                  border-radius: var(--r-sm); border: 1px solid rgba(255,255,255,0.04); }
+    .const-key  { color: var(--muted); flex-shrink: 0; margin-right: 12px; }
+    .const-val  { font-weight: 600; text-align: right; }
+    .const-precautions { margin-top: 12px; }
+    .precaution-item { display: flex; gap: 8px; font-size: 0.82rem; color: var(--muted);
+                       padding: 4px 0; align-items: flex-start; }
+    .precaution-item::before { content: '→'; color: var(--soil-primary); flex-shrink: 0; }
+
+    /* ── CLIMATE ── */
+    .climate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .climate-item { background: rgba(255,255,255,0.02); border-radius: var(--r-sm);
+                    padding: 12px 14px; border: 1px solid rgba(255,255,255,0.04); }
+    .cli-key   { font-size: 0.7rem; color: var(--muted); text-transform: uppercase;
+                 letter-spacing: 0.07em; margin-bottom: 5px; }
+    .cli-val   { font-size: 0.88rem; font-weight: 600; }
+
+    /* ── CHATBOT SNIPPET ── */
+    .ai-suggestions { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .ai-msg {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 10px 14px; font-size: 0.83rem;
+      border-left: 3px solid var(--soil-primary); color: var(--muted); line-height: 1.5;
+    }
+    .ai-msg strong { color: var(--text); }
+
+    /* ── FOOTER ── */
+    .report-footer {
+      margin-top: 40px; padding: 20px 24px; border: 1px solid var(--border);
+      border-radius: var(--radius); text-align: center;
+      background: rgba(255,255,255,0.01);
+    }
+    .rf-logo   { font-family: var(--display); font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
+    .rf-logo .acc { color: var(--soil-primary); }
+    .rf-info   { font-size: 0.78rem; color: var(--muted); line-height: 1.7; }
+
+    /* ── LOADING STATE ── */
+    .loading-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 60vh; gap: 16px;
+    }
+    .loading-spinner {
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.08);
+      border-top-color: var(--soil-primary);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { color: var(--muted); font-size: 0.9rem; }
+
+    /* ── PRINT ── */
+    @media print {
+      .topbar, .tb-btn { display: none !important; }
+      body { background: white; color: #111; }
+      .report-wrapper { padding: 0; }
+      .report-card, .score-card { border: 1px solid #ddd; }
+      .sc-value, .hero-title .highlight { color: #065f46; }
+      .report-hero { background: #f0fdf4; border-color: #bbf7d0; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .score-grid  { grid-template-columns: repeat(3,1fr); }
+      .content-grid { grid-template-columns: 1fr; }
+      .report-hero  { grid-template-columns: 1fr; }
+      .house-section { grid-template-columns: 1fr; }
+      .house-visual { width: 120px; margin: 0 auto; }
+    }
+    @media (max-width: 600px) {
+      .score-grid  { grid-template-columns: repeat(2,1fr); }
+      .crop-cols   { grid-template-columns: 1fr; }
+      .nutrients-grid { grid-template-columns: 1fr; }
+      .risk-panel  { grid-template-columns: 1fr; }
+      .climate-grid{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body id="reportBody">
+
+<!-- ── TOPBAR ── -->
+<nav class="topbar">
+  <div class="topbar-brand">
+    Soil<span class="acc">Vision</span><span style="color:var(--accent2)">360</span>
+  </div>
+  <div class="topbar-actions">
+    <button class="tb-btn" onclick="window.print()" data-lang="print">🖨 Print</button>
+    <button class="tb-btn" id="dlBtn" onclick="downloadPDF()" data-lang="download_pdf">📄 Download PDF</button>
+    <button class="tb-btn" onclick="shareReport()" data-lang="share">↗ Share</button>
+    <button class="tb-btn primary" onclick="window.location.href='/'" data-lang="new_analysis">← New Analysis</button>
+  </div>
+</nav>
+
+<!-- ── CONTENT ── -->
+<div class="report-wrapper" id="reportWrapper">
+  <!-- Loading state (shown until data loaded) -->
+  <div class="loading-state" id="loadingState">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" data-lang="loading_report">Loading soil report...</div>
+  </div>
+
+  <!-- Report content (hidden until loaded) -->
+  <div id="reportContent" style="display:none">
+
+    <!-- ── HERO HEADER ── -->
+    <div class="report-hero" id="reportHero">
+      <div>
+        <div class="hero-eyebrow" data-lang="soil_analysis_report">🔬 Soil Analysis Report</div>
+        <h1 class="hero-title">
+          <span id="heroSoilType">Black Soil</span><br>
+          <span class="highlight" id="heroSubtitle" data-lang="intelligence_report">Intelligence Report</span>
+        </h1>
+        <p class="hero-desc" id="heroDesc">Loading description...</p>
+        <div class="hero-meta" id="heroMeta"></div>
+      </div>
+      <div class="soil-id-hero">
+        <div class="soil-id-label-hero" data-lang="soil_vision_id">Soil Vision ID</div>
+        <div class="soil-id-code" id="heroSoilId">SV360-XXX-0000</div>
+        <div class="qr-placeholder" id="qrContainer">
+          <span>QR code</span>
+        </div>
+        <div style="font-size:0.65rem; color:var(--muted); margin-top:6px;" data-lang="scan_verify">Scan to verify online</div>
+      </div>
+    </div>
+
+    <!-- ── SCORES ── -->
+    <div class="section-label" data-lang="core_scores">📊 Core Analysis Scores</div>
+    <div class="score-grid" id="scoreGrid"></div>
+
+    <!-- ── MAIN GRID ── -->
+    <div class="content-grid">
+
+      <!-- Left column -->
+      <div style="display:flex; flex-direction:column; gap:18px;">
+
+        <!-- Soil Image -->
+        <div class="report-card">
+          <div class="card-title" data-lang="soil_sample">📸 Soil Sample</div>
+          <div class="soil-image-wrap">
+            <img id="soilImage" alt="Soil sample" style="display:none">
+            <div class="no-image" id="noImage">
+              <div style="font-size: 2.5rem">🪨</div>
+              <div data-lang="no_image">No image available</div>
+            </div>
+            <div class="image-overlay" id="imgOverlay">
+              Analysed sample — <span id="imgRgbText"></span>
+            </div>
+          </div>
+          <div class="rgb-swatch" id="rgbSwatch"></div>
+        </div>
+
+        <!-- Crop Recommendations -->
+        <div class="report-card">
+          <div class="card-title" data-lang="crop_recommendations">🌾 Crop Recommendations</div>
+          <div class="crop-cols" id="cropCols"></div>
+          <div class="crop-details" id="cropDetails"></div>
+        </div>
+
+        <!-- Climate Impact -->
+        <div class="report-card">
+          <div class="card-title" data-lang="climate_impact">🌍 Climate Impact Assessment</div>
+          <div class="climate-grid" id="climateGrid"></div>
+        </div>
+
+      </div>
+
+      <!-- Right column -->
+      <div style="display:flex; flex-direction:column; gap:18px;">
+
+        <!-- Physical Properties -->
+        <div class="report-card">
+          <div class="card-title" data-lang="physical_properties">🪨 Physical Properties</div>
+          <div class="props-list" id="propsList"></div>
+        </div>
+
+        <!-- Risk Assessment -->
+        <div class="report-card">
+          <div class="card-title" data-lang="risk_assessment">⚠️ Risk Assessment</div>
+          <div class="risk-panel" id="riskPanel"></div>
+        </div>
+
+        <!-- Nutrients -->
+        <div class="report-card">
+          <div class="card-title" data-lang="nutrient_profile">🧪 Nutrient Profile</div>
+          <div class="nutrients-grid" id="nutrientsGrid"></div>
+          <div id="fertilityScore" style="margin-top:12px; font-size:0.82rem; color:var(--muted);"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── CONSTRUCTION ── -->
+    <div class="section-label" style="margin-top:8px;" data-lang="construction_analysis">🏗️ Construction Analysis</div>
+    <div class="report-card" style="margin-bottom:20px;">
+      <div class="house-section">
+        <div class="house-visual">
+          <svg class="house-svg" id="houseSVG" viewBox="0 0 200 180" fill="none">
+            <rect x="35" y="88" width="130" height="82" class="h-body" rx="2"
+                  fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.4)" stroke-width="1.5"/>
+            <rect x="82" y="128" width="36" height="42" class="h-door" rx="2"
+                  fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+            <rect x="48" y="104" width="26" height="20" class="h-win" rx="2"
+                  fill="rgba(6,182,212,0.2)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+            <rect x="126" y="104" width="26" height="20" class="h-win" rx="2"
+                  fill="rgba(6,182,212,0.2)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+            <polygon points="15,88 100,18 185,88" class="h-roof"
+                     fill="rgba(16,185,129,0.2)" stroke="rgba(16,185,129,0.5)" stroke-width="1.5"/>
+            <rect x="128" y="28" width="16" height="32" rx="1"
+                  fill="rgba(16,185,129,0.2)" stroke="rgba(16,185,129,0.4)" stroke-width="1"/>
+            <line x1="10" y1="170" x2="190" y2="170" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+            <path d="M58 118 L63 134 L56 148" class="h-crack" id="crack1"/>
+            <path d="M132 108 L127 124 L134 140" class="h-crack" id="crack2"/>
+            <path d="M85 148 L90 162 L82 170" class="h-crack" id="crack3"/>
+          </svg>
+          <div id="houseStatusBadge" style="text-align:center; font-size:0.78rem; font-weight:600; padding:4px 10px;
+               border-radius:20px; margin-top:6px; display:inline-block; width:100%">
+            Analysing...
+          </div>
+        </div>
+        <div>
+          <div class="const-list" id="constList"></div>
+          <div class="const-precautions" id="constPrecautions"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AI SUGGESTIONS ── -->
+    <div class="section-label" data-lang="ai_soil_insights">🤖 AI Soil Assistant Insights</div>
+    <div class="report-card" style="margin-bottom:20px;">
+      <div class="ai-suggestions" id="aiSuggestions"></div>
+      <div style="margin-top:14px; text-align:center;">
+        <a href="/#chatbot" style="font-size:0.82rem; color:var(--soil-primary); text-decoration:none;" data-lang="ask_ai">
+          Ask the full AI Assistant →
+        </a>
+      </div>
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <div class="report-footer">
+      <div class="rf-logo">Soil<span class="acc">Vision</span><span style="color:var(--accent2)">360</span></div>
+      <div class="rf-info" id="rfInfo" data-lang="platform_name">
+        Professional Soil Intelligence Platform<br>
+        Report ID: <span id="rfSoilId">—</span> · Generated: <span id="rfDate">—</span><br>
+        <em>This report is generated by AI analysis. Verify critical decisions with a certified soil scientist.</em>
+      </div>
+    </div>
+
+  </div><!-- /reportContent -->
+</div><!-- /report-wrapper -->
+
+<script>
+'use strict';
+
+// ── UTILS ────────────────────────────────────────────────────────────────────
+const SOIL_THEMES = {
+  'Black Soil':          { cls: 't-black',  icon: '🌑', color: '#9ca3af' },
+  'Red Soil':            { cls: 't-red',    icon: '🔴', color: '#f87171' },
+  'Yellow Soil':         { cls: 't-yellow', icon: '🌕', color: '#fbbf24' },
+  'Brown/Alluvial Soil': { cls: 't-brown',  icon: '🟫', color: '#d97706' },
+};
+
+function getRating(v) {
+  if (v >= 80) return 'Excellent';
+  if (v >= 65) return 'Good';
+  if (v >= 45) return 'Moderate';
+  if (v >= 25) return 'Poor';
+  return 'Very Poor';
+}
+
+function getRiskClass(r) {
+  const m = { 'Low':'r-low','Medium':'r-medium','High':'r-high','Critical':'r-critical','Very High':'r-very-high' };
+  return m[r] || 'r-medium';
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  // Extract soil_id from URL: /reports/view/<id> or ?id=<id>
+  const pathParts = window.location.pathname.split('/');
+  const soilId = pathParts[pathParts.length - 1] || new URLSearchParams(location.search).get('id');
+
+  if (soilId && soilId !== 'view') {
+    await loadReport(soilId);
+  } else {
+    // Check if data passed via sessionStorage (from main app)
+    const stored = sessionStorage.getItem('sv360_report');
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        renderReport(data);
+      } catch (e) {
+        showError('No report data found. Please run a soil analysis first.');
+      }
+    } else {
+      // Demo fallback
+      renderReport(getDemoReport());
+    }
+  }
+});
+
+async function loadReport(soilId) {
+  try {
+    const res = await fetch(`/reports/view/${soilId}`);
+    const result = await res.json();
+
+    if (result.success && result.data) {
+      renderReport(result.data);
+    } else {
+      renderReport(getDemoReport(soilId));
+    }
+  } catch (e) {
+    renderReport(getDemoReport(soilId));
+  }
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function renderReport(data) {
+  document.getElementById('loadingState').style.display  = 'none';
+  document.getElementById('reportContent').style.display = 'block';
+
+  const soilType = data.soil_type || 'Brown/Alluvial Soil';
+  const meta     = SOIL_THEMES[soilType] || SOIL_THEMES['Brown/Alluvial Soil'];
+
+  // Apply theme
+  document.getElementById('reportBody').className = meta.cls;
+
+  // Hero
+  document.getElementById('heroSoilType').textContent = `${meta.icon} ${soilType}`;
+  document.getElementById('heroSubtitle').textContent = 'Land Intelligence Report';
+  document.getElementById('heroDesc').textContent     = data.description || 'Soil analysis report generated by Soil Vision 360.';
+  document.getElementById('heroSoilId').textContent   = data.soil_id || '—';
+
+  // Hero meta pills
+  document.getElementById('heroMeta').innerHTML = [
+    { key: 'Soil ID',    val: data.soil_id || '—' },
+    { key: 'Texture',    val: data.texture || '—' },
+    { key: 'pH Range',   val: data.ph_range || '—' },
+    { key: 'District',   val: data.district || 'Not specified' },
+    { key: 'Analysed',   val: data.analyzed_at ? new Date(data.analyzed_at).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN') },
+  ].map(p => `
+    <div class="meta-pill">
+      <span class="key">${p.key}:</span>
+      <span class="val">${p.val}</span>
+    </div>
+  `).join('');
+
+  // Generate QR code URL display
+  const reportUrl = `${window.location.origin}/reports/view/${data.soil_id}`;
+  document.getElementById('qrContainer').innerHTML =
+    `<div style="font-size:0.58rem; color:#666; text-align:center; padding:2px; word-break:break-all">${reportUrl}</div>`;
+
+  // Scores
+  renderScores(data);
+
+  // Image
+  renderImage(data);
+
+  // Props
+  renderPhysicalProps(data);
+
+  // Nutrients
+  renderNutrients(data.nutrients || {});
+
+  // Risk
+  renderRisk(data);
+
+  // Crops
+  renderCrops(data.crop_recommendations || {});
+
+  // Construction
+  renderConstruction(data);
+
+  // Climate
+  renderClimate(data.climate_impact || {});
+
+  // AI insights
+  renderAIInsights(data);
+
+  // Footer
+  document.getElementById('rfSoilId').textContent = data.soil_id || '—';
+  document.getElementById('rfDate').textContent   = new Date().toLocaleString('en-IN');
+
+  // Page title
+  document.title = `${soilType} Report — ${data.soil_id} — Soil Vision 360`;
+}
+
+function renderScores(data) {
+  const grid = document.getElementById('scoreGrid');
+  const items = [
+    { icon: '💧', label: 'Water Retention',    val: data.water_retention    || 0 },
+    { icon: '🌾', label: 'Crop Score',         val: data.crop_score         || 0 },
+    { icon: '🏗️', label: 'Construction',       val: data.construction_score || 0 },
+    { icon: '🌡️', label: 'Heat Index',         val: data.heat_index         || 0 },
+    { icon: '🌍', label: 'Land Potential',     val: data.land_potential_score || 0 },
+    { icon: '💰', label: 'Agri ROI',           val: data.agriculture_roi    || 0 },
+  ];
+
+  grid.innerHTML = items.map(item => `
+    <div class="score-card">
+      <div class="sc-icon">${item.icon}</div>
+      <div class="sc-label">${item.label}</div>
+      <div class="sc-value">${item.val}<span class="sc-unit">%</span></div>
+      <div class="sc-bar"><div class="sc-bar-fill" data-target="${Math.min(item.val, 100)}" style="width:0%"></div></div>
+      <div class="sc-rating">${getRating(item.val)}</div>
+    </div>
+  `).join('');
+
+  setTimeout(() => {
+    grid.querySelectorAll('.sc-bar-fill').forEach(b => b.style.width = b.getAttribute('data-target') + '%');
+  }, 300);
+}
+
+function renderImage(data) {
+  const img    = document.getElementById('soilImage');
+  const noImg  = document.getElementById('noImage');
+  const swatch = document.getElementById('rgbSwatch');
+  const overlay = document.getElementById('imgOverlay');
+
+  if (data.image_path) {
+    img.src = data.image_path;
+    img.style.display = 'block';
+    noImg.style.display = 'none';
+    img.onerror = () => { img.style.display = 'none'; noImg.style.display = 'flex'; };
+  }
+
+  const rgb = data.avg_rgb || {};
+  if (rgb.r !== undefined) {
+    const hex = `#${rgb.r.toString(16).padStart(2,'0')}${rgb.g.toString(16).padStart(2,'0')}${rgb.b.toString(16).padStart(2,'0')}`;
+    overlay.innerHTML = `Average RGB: ${rgb.r}, ${rgb.g}, ${rgb.b}`;
+    swatch.innerHTML = `
+      <div class="swatch-box" style="background:${hex}"></div>
+      <div class="swatch-info">
+        <div class="swatch-hex">${hex.toUpperCase()}</div>
+        <div class="swatch-rgb">R:${rgb.r} G:${rgb.g} B:${rgb.b}</div>
+      </div>
+    `;
+  }
+}
+
+function renderPhysicalProps(data) {
+  const list = document.getElementById('propsList');
+  const props = [
+    { key: 'Texture',           val: data.texture            || '—' },
+    { key: 'pH Range',          val: data.ph_range           || '—' },
+    { key: 'pH Value',          val: (data.ph_value          || '—') + (data.ph_value ? '' : '') },
+    { key: 'Porosity',          val: (data.porosity_pct      || '—') + (data.porosity_pct ? '%' : '') },
+    { key: 'Bulk Density',      val: (data.bulk_density      || '—') + (data.bulk_density ? ' g/cm³' : '') },
+    { key: 'Organic Carbon',    val: (data.organic_carbon_pct || '—') + (data.organic_carbon_pct ? '%' : '') },
+    { key: 'Fertility Label',   val: data.nutrients?.fertility_label || '—', accent: true },
+  ];
+
+  list.innerHTML = props.map(p => `
+    <div class="prop-row">
+      <span class="prop-key">${p.key}</span>
+      <span class="prop-val ${p.accent ? 'accent' : ''}">${p.val}</span>
+    </div>
+  `).join('');
+}
+
+function renderNutrients(n) {
+  const grid = document.getElementById('nutrientsGrid');
+  const items = [
+    { name: 'Nitrogen (N)',     val: n.nitrogen        || 0 },
+    { name: 'Phosphorus (P)',   val: n.phosphorus      || 0 },
+    { name: 'Potassium (K)',    val: n.potassium       || 0 },
+    { name: 'Organic Matter',  val: n.organic_matter  || 0 },
+    { name: 'Calcium (Ca)',    val: n.calcium          || 0 },
+    { name: 'Magnesium (Mg)', val: n.magnesium         || 0 },
+  ];
+
+  grid.innerHTML = items.map(i => `
+    <div class="nut-item">
+      <div class="nut-label">
+        <span class="nut-name">${i.name}</span>
+        <span class="nut-pct">${i.val}%</span>
+      </div>
+      <div class="nut-track">
+        <div class="nut-fill" data-target="${i.val}" style="width:0%"></div>
+      </div>
+    </div>
+  `).join('');
+
+  const fertEl = document.getElementById('fertilityScore');
+  if (n.overall_fertility !== undefined) {
+    fertEl.innerHTML = `Overall Fertility: <strong style="color:var(--soil-primary)">${n.overall_fertility}% — ${n.fertility_label || ''}</strong>`;
+  }
+
+  setTimeout(() => {
+    document.querySelectorAll('.nut-fill').forEach(b => b.style.width = b.getAttribute('data-target') + '%');
+  }, 400);
+}
+
+function renderRisk(data) {
+  const panel = document.getElementById('riskPanel');
+  const risks = [
+    { name: 'Construction Risk', val: data.construction_risk || '—' },
+    { name: 'Flood Risk',        val: data.flood_risk        || '—' },
+    { name: 'Drought Risk',      val: data.drought_risk      || '—' },
+    { name: 'Erosion Risk',      val: data.erosion_risk      || '—' },
+  ];
+
+  panel.innerHTML = risks.map(r => `
+    <div class="risk-item">
+      <div class="risk-name">${r.name}</div>
+      <div class="risk-value ${getRiskClass(r.val)}">${r.val}</div>
+    </div>
+  `).join('');
+}
+
+function renderCrops(recs) {
+  const cols = document.getElementById('cropCols');
+  cols.innerHTML = `
+    <div class="crop-group">
+      <div class="crop-group-label">Primary Crops</div>
+      <div class="crop-tags">${(recs.primary || []).map(c => `<span class="crop-tag">${c}</span>`).join('') || '—'}</div>
+    </div>
+    <div class="crop-group">
+      <div class="crop-group-label">Secondary</div>
+      <div class="crop-tags">${(recs.secondary || []).map(c => `<span class="crop-tag secondary">${c}</span>`).join('') || '—'}</div>
+    </div>
+    <div class="crop-group">
+      <div class="crop-group-label">Avoid</div>
+      <div class="crop-tags">${(recs.avoid || ['None']).map(c => `<span class="crop-tag avoid">${c}</span>`).join('')}</div>
+    </div>
+  `;
+
+  document.getElementById('cropDetails').innerHTML = [
+    { k: 'Season',      v: recs.season      || '—' },
+    { k: 'Irrigation',  v: recs.irrigation  || '—' },
+    { k: 'Fertilizer',  v: recs.fertilizer  || '—' },
+    { k: 'Expected Yield', v: recs.expected_yield_t_ha ? recs.expected_yield_t_ha + ' t/ha' : '—' },
+  ].map(i => `
+    <div class="crop-detail-item">
+      <div class="cd-key">${i.k}</div>
+      <div class="cd-val">${i.v}</div>
+    </div>
+  `).join('');
+}
+
+function renderConstruction(data) {
+  const advice = data.construction_advice || data.construction_info || {};
+  const score  = data.construction_score || 0;
+  const stable = score >= 50;
+
+  // House SVG animation
+  const svgParts = document.querySelectorAll('.h-body, .h-roof');
+  if (stable) {
+    svgParts.forEach(el => {
+      el.setAttribute('fill', 'rgba(16,185,129,0.2)');
+      el.setAttribute('stroke', 'rgba(16,185,129,0.5)');
+    });
+    document.getElementById('houseStatusBadge').textContent = '✅ Structurally Stable';
+    document.getElementById('houseStatusBadge').style.cssText =
+      'background:rgba(16,185,129,0.12); color:#10b981; text-align:center; font-size:0.78rem; font-weight:600; padding:4px 10px; border-radius:20px; display:block; width:100%';
+  } else {
+    svgParts.forEach(el => {
+      el.setAttribute('fill', 'rgba(239,68,68,0.15)');
+      el.setAttribute('stroke', 'rgba(239,68,68,0.4)');
+    });
+    document.querySelectorAll('.h-crack').forEach(c => c.style.opacity = '1');
+    document.getElementById('houseStatusBadge').textContent = '⚠️ Structural Risk';
+    document.getElementById('houseStatusBadge').style.cssText =
+      'background:rgba(239,68,68,0.12); color:#ef4444; text-align:center; font-size:0.78rem; font-weight:600; padding:4px 10px; border-radius:20px; display:block; width:100%';
+  }
+
+  const constList = document.getElementById('constList');
+  constList.innerHTML = [
+    { key: 'Suitability',         val: advice.suitability          || '—' },
+    { key: 'Foundation Type',     val: advice.foundation_type      || advice.foundation || '—' },
+    { key: 'Foundation Depth',    val: advice.foundation_depth_m   ? advice.foundation_depth_m + ' m' : '—' },
+    { key: 'Load Bearing Cap.',   val: advice.load_bearing_capacity_kPa ? advice.load_bearing_capacity_kPa + ' kPa' : '—' },
+    { key: 'Cost Factor',         val: advice.estimated_cost_factor ? advice.estimated_cost_factor + '× baseline' : '—' },
+    { key: 'Multi-storey Safe',   val: advice.safe_for_multistory !== undefined ? (advice.safe_for_multistory ? 'Yes' : 'Caution') : '—' },
+  ].map(r => `
+    <div class="const-row">
+      <span class="const-key">${r.key}</span>
+      <span class="const-val">${r.val}</span>
+    </div>
+  `).join('');
+
+  const precautions = advice.precautions || [];
+  if (precautions.length > 0) {
+    document.getElementById('constPrecautions').innerHTML = `
+      <div style="font-size:0.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin:12px 0 6px;">Precautions</div>
+      ${precautions.map(p => `<div class="precaution-item">${p}</div>`).join('')}
+    `;
+  }
+}
+
+function renderClimate(climate) {
+  const grid = document.getElementById('climateGrid');
+  const items = [
+    { key: 'Carbon Sequestration',  val: climate.carbon_sequestration    || '—' },
+    { key: 'Drought Sensitivity',   val: climate.drought_sensitivity     || '—' },
+    { key: 'Temperature Rise Effect',val: climate.temperature_rise_effect || '—' },
+    { key: 'Long-Term Trend',       val: climate.trend || climate.climate_trend || '—' },
+  ];
+
+  grid.innerHTML = items.map(i => `
+    <div class="climate-item">
+      <div class="cli-key">${i.key}</div>
+      <div class="cli-val">${i.val}</div>
+    </div>
+  `).join('');
+}
+
+function renderAIInsights(data) {
+  const container = document.getElementById('aiSuggestions');
+  const soilType = data.soil_type || '';
+  const cropScore = data.crop_score || 0;
+  const constScore = data.construction_score || 0;
+  const roi = data.agriculture_roi || 0;
+
+  const insights = [
+    {
+      text: `Based on your <strong>${soilType}</strong> analysis, the estimated agriculture ROI is approximately <strong>${roi}%</strong> annually. Focus on high-value primary crops to maximise returns.`,
+    },
+    {
+      text: `Your construction score is <strong>${constScore}%</strong>. ${constScore >= 50 ? 'Standard engineering approaches are feasible for residential construction.' : 'Significant soil stabilisation and deep foundations are required before construction.'}`,
+    },
+    {
+      text: `Water retention at <strong>${data.water_retention || 0}%</strong> means ${data.water_retention >= 70 ? 'your soil holds moisture well — ideal for crops with moderate water needs.' : 'frequent irrigation will be required — consider drip irrigation for efficiency.'}`,
+    },
+  ];
+
+  container.innerHTML = insights.map(i => `<div class="ai-msg">${i.text}</div>`).join('');
+}
+
+// ── ACTIONS ──────────────────────────────────────────────────────────────────
+async function downloadPDF() {
+  const data = getStoredReport();
+  if (!data) { alert('No report data available for download.'); return; }
+
+  document.getElementById('dlBtn').textContent = '⌛ Generating...';
+  try {
+    const res = await fetch('/reports/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ soil_id: data.soil_id, analysis: data })
+    });
+
+    if (!res.ok) throw new Error('Generation failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    a.download = `SoilVision360_${data.soil_id}.pdf`; a.click();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    window.print(); // fallback to browser print
+  } finally {
+    document.getElementById('dlBtn').textContent = '📄 Download PDF';
+  }
+}
+
+function shareReport() {
+  const url = window.location.href;
+  if (navigator.share) {
+    navigator.share({ title: 'Soil Vision 360 — Soil Report', url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => alert('Report URL copied to clipboard!'));
+  }
+}
+
+function getStoredReport() {
+  const stored = sessionStorage.getItem('sv360_report');
+  return stored ? JSON.parse(stored) : null;
+}
+
+function showError(msg) {
+  document.getElementById('loadingState').innerHTML = `
+    <div style="text-align:center; color:var(--muted)">
+      <div style="font-size:3rem; margin-bottom:12px">🌱</div>
+      <h3 style="margin-bottom:8px">No Report Found</h3>
+      <p style="font-size:0.88rem">${msg}</p>
+      <a href="/" style="color:var(--accent); margin-top:16px; display:inline-block; font-weight:600">← Go Analyse a Soil Sample</a>
+    </div>
+  `;
+}
+
+// ── DEMO DATA ────────────────────────────────────────────────────────────────
+function getDemoReport(soilId) {
+  return {
+    soil_id: soilId || 'SV360-BLK-4829',
+    soil_type: 'Black Soil',
+    soil_code: 'BLK',
+    theme: 'black',
+    description: 'Black Cotton Soil (Regur) — a deep, dark Vertisol formed from basaltic parent material. Extremely fertile with high clay content.',
+    analyzed_at: new Date().toISOString(),
+    texture: 'Heavy Clay',
+    ph_range: '6.5–8.0',
+    ph_value: 7.2,
+    porosity_pct: 55,
+    bulk_density: 1.10,
+    organic_carbon_pct: 2.8,
+    avg_rgb: { r: 30, g: 28, b: 25 },
+    water_retention: 83,
+    crop_score: 88,
+    construction_score: 42,
+    heat_index: 78,
+    land_potential_score: 74,
+    agriculture_roi: 28.5,
+    construction_risk: 'Critical',
+    flood_risk: 'High',
+    drought_risk: 'Medium',
+    erosion_risk: 'Medium',
+    nutrients: {
+      nitrogen: 70, phosphorus: 62, potassium: 90, organic_matter: 88,
+      calcium: 92, magnesium: 80, overall_fertility: 80, fertility_label: 'Very High'
+    },
+    crop_recommendations: {
+      primary: ['Cotton', 'Sugarcane', 'Wheat', 'Jowar'],
+      secondary: ['Sunflower', 'Linseed', 'Chickpea'],
+      avoid: ['Groundnut', 'Potato'],
+      season: 'Kharif (June–November)',
+      irrigation: 'Moderate — soil retains water for 10–14 days',
+      fertilizer: 'Low N, high K. Micro-nutrient Zn required.',
+      expected_yield_t_ha: 3.2
+    },
+    construction_advice: {
+      suitability: 'Poor',
+      foundation_type: 'Deep Pile Foundation',
+      foundation_depth_m: 4.0,
+      precautions: ['Soil stabilisation required', 'Avoid multi-storey without geotechnical study', 'Sub-surface drainage essential'],
+      estimated_cost_factor: 1.75,
+      safe_for_multistory: false,
+      load_bearing_capacity_kPa: 80
+    },
+    climate_impact: {
+      carbon_sequestration: 'High',
+      drought_sensitivity: 'Medium',
+      temperature_rise_effect: 'Moderate',
+      trend: 'Stable with proper irrigation management'
+    }
+  };
+}
+</script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

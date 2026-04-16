@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Soil Vision 360 — AI Chat</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/static.css') }}">
+</head>
+<body class="theme-default">
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <span class="brand-text">Soil<span class="brand-accent">Vision</span><span class="brand-360">360</span></span>
+  </div>
+  <div class="nav-links">
+    <a href="/" class="nav-link" data-lang="back_home">← Back to Home</a>
+  </div>
+</nav>
+
+<section class="chatbot-page">
+  <div class="chat-container fullpage">
+    <div class="chat-header">
+      <div class="chat-avatar">🤖</div>
+      <div>
+        <div class="chat-name" data-lang="chat_title">SoilBot 360</div>
+        <div class="chat-status">
+          <span class="status-dot"></span> Online
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="message bot-msg">
+        <div class="msg-avatar">🤖</div>
+        <div class="msg-bubble" data-lang="welcome">
+          Hello! Ask me anything about soil, crops, irrigation or construction.
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-row">
+      <input type="text" class="chat-input" id="chatInput"
+        data-lang="placeholder"
+        onkeydown="if(event.key==='Enter') sendChat()">
+      <button class="chat-send" onclick="sendChat()" data-lang="send">Send ↑</button>
+    </div>
+  </div>
+</section>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const lang = localStorage.getItem("lang") || "en";
+  loadLang(lang);
+
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+{
+  "signin": "Sign In",
+  "signout": "Sign Out",
+  "reports": "Reports",
+  "admin": "Admin",
+  "user": "User",
+  "chatbot": "Open Chatbot",
+
+  "ai_soil": "AI-Powered Soil Intelligence",
+  "know_soil": "Know Your Soil",
+  "unlock_potential": "Unlock Its Potential",
+
+  "hero_description": "Upload a soil image. Get instant analysis — water retention, crop compatibility, construction stability, and a full land potential report in seconds.",
+
+  "start_analysis": "Start Analysis",
+
+  "soil_types": "Soil Types",
+  "metrics": "Metrics",
+
+  "platform": "Professional Soil Intelligence Platform",
+
+  "copyright": "© 2024 SoilVision360",
+
+  "welcome_back": "Welcome back",
+  "dont_have_account": "Don't have an account?",
+  "create_account": "Create one free",
+  "email_address": "Email Address",
+  "password": "Password",
+  "forgot_password": "Forgot password?",
+  "remember_me": "Remember me",
+  "sign_in_btn": "Sign In to Soil Vision 360",
+  "or_continue": "or continue with",
+  "google": "Google",
+  "github": "GitHub",
+  "new_user": "New to Soil Vision 360?",
+  "create_free_account": "Create a free account",
+  "analysis_platform": "Intelligent Soil Analysis Platform",
+  "ai_classification": "AI-Powered Classification",
+  "pdf_reports": "PDF Reports with QR Code",
+  "pdf_report_desc": "Professional downloadable reports tied to your unique Soil ID",
+  "valid_email_error": "Please enter a valid email address",
+  "password_required": "Password is required",
+"black_soil":"Black Soil",
+"red_soil":"Red Soil",
+"clay_soil":"Clay Soil",
+"alluvial_soil":"Alluvial Soil",
+"cinder_soil":"Cinder Soil",
+"laterite_soil":"Laterite Soil",
+"peat_soil":"Peat Soil",
+"yellow_soil":"Yellow Soil",
+"metrics_desc": "Water retention, crop score, construction stability, ROI, flood risk & more",
+  "soil_detection_desc": "Detects Black, Red, Yellow, Clay, Cinder, Peat, Laterite & Alluvial soils with confidence scoring",
+    "soil_upload_desc": "Upload a soil image, get instant classification, detailed agricultural and construction scores, and a downloadable PDF report.",
+  "new_account": "New account",
+  "already_registered": "Already registered?",
+  "sign_in_here": "Sign in here →",
+
+  "first_name": "First Name",
+  "last_name": "Last Name",
+  "confirm_password": "Confirm Password",
+
+  "account_type": "Account Type",
+  "farmer": "Farmer",
+  "analyst": "Analyst",
+  "builder": "Builder",
+
+  "terms_text": "I agree to the Terms of Service and Privacy Policy.",
+  "create_my_account": "Create My Account",
+
+  "or_signup": "or sign up with",
+
+  "already_have_account": "Already have an account?",
+  "sign_in": "Sign in",
+
+  "success_title": "Account Created!",
+  "success_msg": "Welcome to Soil Vision 360. Your account is ready — start analysing soil samples now.",
+
+  "join_network": "Join the Soil Intelligence Network",
+  "network_desc": "Create your free account to analyse soil samples, save reports, track district data across Tamil Nadu, and access the AI assistant.",
+
+  "create_account_step": "Create Account",
+  "upload_soil_image": "Upload Soil Image",
+  "get_analysis": "Get Instant Analysis",
+  "download_pdf": "Download PDF Report",
+   "drag_drop_soil": "Drag & drop or browse for any soil photo",
+  "enter_details_role": "Enter your details and choose your role",
+  "ai_classifies_soil": "AI classifies and scores your soil in seconds",
+  "professional_report": "Professional report with unique Soil Vision ID",
+
+  "crop_land_use": "Crop & land use",
+  "research_reports": "Research & reports",
+  "construction_data": "Construction data",
+
+  "first_name_required": "First name required",
+  "last_name_required": "Last name required",
+  "valid_email_required": "Enter a valid email address",
+  "password_minimum": "Password must be at least 8 characters",
+  "password_not_match": "Passwords do not match",
+
+  "password_strength": "Password strength",
+
+  "uppercase_letter": "Uppercase letter",
+  "lowercase_letter": "Lowercase letter",
+  "number_required": "Number",
+  "special_character": "Special character",
+  "not_your_name": "Not your name",
+
+  "terms_required": "You must accept the terms to continue",
+
+  "sign_in_text": "Sign in",
+  "google_login": "Google",
+  "github_login": "GitHub",
+
+  "back_to_app": "Back to App",
+
+  "connection_error": "Connection error. Is the Flask server running?",
+  "registration_failed": "Registration failed. Please try again.",
+  "chat_title": "SoilBot 360",
+  "welcome": "Hello! Ask me anything about soil, crops, irrigation or construction.",
+  "placeholder": "Ask about your soil...",
+  "send": "Send",
+  "back_home": "Back to Home",
+  "home": "Home",
+  "analyze_title": "Analyze Your Soil",
+  "analyze_sub": "Upload a clear soil sample image for instant AI classification",
+  "drop_image": "Drop Soil Image Here",
+  "upload_hint": "PNG, JPG, JPEG, WEBP — max 16MB",
+  "choose_file": "Choose File",
+  "analyze_btn": "Analyze Soil",
+  "soil_id": "Soil ID",
+  "share": "Share",
+  "view_scores": "View Scores",
+  "back_info": "Back to Info",
+  "construction_analysis": "Construction Analysis",
+  "crop_simulation": "Crop Simulation",
+  "select_crop": "Select Crop",
+  "risk_assessment": "Risk Assessment",
+  "climate_impact": "Climate Impact",
+  "nutrient_profile": "Nutrient Profile",
+  "soil_layers": "Predicted Soil Layers",
+  "crop_recommendations": "Crop Recommendations",
+  "admin_dashboard": "Admin Dashboard",
+  "refresh": "Refresh",
+  "soil_distribution": "Soil Type Distribution",
+  "recent_analysis": "Recent Analyses",
+  "register": "Register",
+  "email": "Email",
+  "full_name": "Full Name",
+   "layer_red_sandy": "Red Sandy Soil",
+  "layer_sandy_clay": "Sandy Clay",
+  "layer_laterite": "Laterite Layer",
+  "layer_rock": "Rock",
+  "print": "Print",
+  "new_analysis": "New Analysis",
+  "loading_report": "Loading soil report...",
+  "soil_analysis_report": "Soil Analysis Report",
+  "intelligence_report": "Intelligence Report",
+  "soil_vision_id": "Soil Vision ID",
+  "scan_verify": "Scan to verify online",
+  "core_scores": "Core Analysis Scores",
+  "soil_sample": "Soil Sample",
+  "no_image": "No image available",
+  "physical_properties": "Physical Properties",
+  "ai_soil_insights": "AI Soil Assistant Insights",
+  "ask_ai": "Ask the full AI Assistant",
+  "platform_name": "Professional Soil Intelligence Platform",
+
+  "desc_black_soil": "Black Cotton Soil (Regur) — a deep, dark Vertisol formed from basaltic parent material. Extremely fertile with high clay content that swells when wet and shrinks when dry, creating deep cracks.",
+
+  "texture_heavy_clay": "Heavy Clay",
+  "ph_range_black": "6.5–8.0",
+
+  "crop_cotton": "Cotton",
+  "crop_sugarcane": "Sugarcane",
+  "crop_wheat": "Wheat",
+  "crop_jowar": "Jowar",
+  "crop_sunflower": "Sunflower",
+  "crop_linseed": "Linseed",
+  "crop_chickpea": "Chickpea",
+  "crop_soybean": "Soybean",
+  "crop_groundnut": "Groundnut",
+  "crop_potato": "Potato",
+  "crop_sweet_potato": "Sweet Potato",
+
+  "season_kharif": "Kharif (June–November)",
+
+  "irrigation_black": "Moderate — soil retains water for 10–14 days",
+
+  "fertilizer_black": "Low nitrogen required (soil is rich). High potassium. Micro-nutrient Zinc required.",
+
+  "spacing_45_60": "45×60",
+
+  "construction_poor": "Poor",
+
+  "foundation_deep_pile": "Deep Pile Foundation",
+
+  "precaution_lime": "Soil stabilisation with lime required",
+  "precaution_no_heavy": "Avoid heavy/multi-storey without geotechnical study",
+  "precaution_drainage": "Install extensive sub-surface drainage",
+  "precaution_geotextile": "Use geotextile reinforcement layers",
+  "precaution_crack_monitor": "Seasonal crack monitoring mandatory",
+
+  "construction_black_recommend": "Agricultural use strongly preferred. If construction needed, engage a certified geotechnical engineer. Deep piling mandatory.",
+
+  "climate_high": "High",
+  "climate_medium": "Medium",
+  "climate_moderate": "Moderate",
+  "climate_stable": "Stable with proper irrigation management",
+  "desc_red_soil": "Red Laterite Soil — formed by intense weathering of crystalline rocks under humid tropical conditions. Red colouration from iron oxide (Fe2O3). Well-drained but deficient in nitrogen, phosphorus, and organic matter.",
+
+  "texture_sandy_loam": "Sandy Loam",
+  "ph_range_red": "5.5–6.5",
+
+
+  "crop_millets": "Millets",
+  "crop_tobacco": "Tobacco",
+  "crop_castor": "Castor",
+  "crop_ragi": "Ragi",
+  "crop_cowpea": "Cowpea",
+  "crop_horsegram": "Horsegram",
+  "crop_bajra": "Bajra",
+  "crop_paddy": "Paddy",
+
+  "season_rabi": "Rabi (November–April)",
+
+  "irrigation_red": "High frequency — drip irrigation every 2–3 days in dry season",
+
+  "fertilizer_red": "High organic compost (10 t/ha). Lime application 2–3 t/ha. FYM recommended.",
+
+  "spacing_30_45": "30×45",
+
+  "construction_good": "Good",
+
+  "foundation_raft_strip": "Raft or Strip Foundation",
+
+  "precaution_waterproof": "Standard waterproofing to prevent iron leaching",
+  "precaution_compact": "Compact soil before laying foundation",
+  "precaution_anticorrosion": "Apply anti-corrosion coating for rebar",
+  "precaution_drainage_monsoon": "Ensure proper drainage during monsoon",
+
+  "construction_red_recommend": "Good construction site with standard engineering. Suitable for residential and commercial buildings.",
+
+  "climate_low": "Low",
+  "climate_significant": "Significant — accelerated drying and erosion",
+  "climate_degrading": "Degrading — requires organic matter and mulching",
+  "desc_clay_soil": "Clay Laterite Soil — formed in humid tropical and sub-tropical regions under good drainage. Yellowish color comes from hydrated iron oxides. Moderately fertile, acidic, and suitable for plantation crops.",
+
+  "texture_loamy_sand": "Loamy Sand",
+  "ph_range_clay": "5.0–6.5",
+
+  "crop_tea": "Tea",
+  "crop_coffee": "Coffee",
+  "crop_rubber": "Rubber",
+  "crop_cashew": "Cashew",
+  "crop_tapioca": "Tapioca",
+  "crop_banana": "Banana",
+  "crop_pineapple": "Pineapple",
+  "crop_coconut": "Coconut",
+  "crop_barley": "Barley",
+
+
+  "season_year_round": "Year-round with regular irrigation",
+
+  "irrigation_clay": "Sprinkler or drip irrigation recommended; mulching helps retain moisture",
+
+  "fertilizer_clay": "High phosphorus (rock phosphate). Apply lime every 2 years. Organic compost 6 tons per hectare",
+
+  "spacing_60_90": "60×90",
+
+  "construction_moderate": "Moderate",
+  "foundation_reinforced_raft": "Reinforced Raft Foundation",
+
+  "precaution_compaction_test": "Soil compaction test mandatory",
+  "precaution_reinforced_raft": "Use reinforced raft or spread footing",
+  "precaution_drainage_critical": "Proper drainage system is critical",
+  "precaution_leach_test": "Leach test required before heavy construction",
+
+  "construction_clay_recommend": "Suitable for light residential construction with proper engineering. Multi-storey buildings require detailed investigation.",
+
+  "climate_high_moisture": "High — requires regular moisture",
+  "climate_moderate_erosion": "Moderate — risk of lateral erosion",
+  "climate_at_risk": "At risk — afforestation and contour bunding recommended",
+  "desc_alluvial_soil": "Alluvial Soil — deposited by rivers and streams over thousands of years. It is the most fertile soil type in India, rich in silt, clay, and organic matter with balanced nutrients. Supports year-round double cropping.",
+
+  "texture_silt_loam": "Silt Loam",
+  "ph_range_alluvial": "6.0–7.5",
+  "crop_maize": "Maize",
+  "crop_vegetables": "Vegetables",
+  "crop_pulses": "Pulses",
+  "crop_oilseeds": "Oilseeds",
+  "crop_jute": "Jute",
+
+
+  "season_alluvial": "Year-round — two crops possible (Kharif + Rabi)",
+
+  "irrigation_alluvial": "Canal or tube-well irrigation with moderate frequency",
+
+  "fertilizer_alluvial": "Balanced NPK (12-32-16) at 200 kg/ha. Minimal soil amendments required",
+
+  "spacing_20_30": "20×30",
+
+  "foundation_raft_pile": "Raft or Pile Foundation (check water table)",
+
+  "precaution_water_table": "Check groundwater table depth",
+  "precaution_settlement": "Soil settlement analysis required for heavy loads",
+  "precaution_scour": "Anti-scour protection near riverbanks",
+  "precaution_basement_waterproof": "Basement waterproofing mandatory",
+
+  "construction_alluvial_recommend": "Generally good for construction. Check groundwater depth before building. Suitable for most structures with standard engineering.",
+  "climate_low_moisture": "Low — naturally moisture retentive",
+  "climate_low_resilient": "Low — highly climate resilient soil",
+  "climate_resilient": "Resilient — supports sustainable agriculture",
+  "desc_cinder_soil": "Cinder Soil is formed from volcanic ash with a porous structure and fast drainage properties.",
+
+  "texture_sandy": "Sandy",
+  "ph_range_cinder": "6.0–7.0",
+  "crop_beans": "Beans",
+  "crop_rice": "Rice",
+
+
+  "irrigation_cinder": "Frequent irrigation required due to fast drainage",
+
+  "fertilizer_cinder": "High organic compost recommended",
+
+  "spacing_40_40": "40×40",
+
+  "foundation_raft": "Raft Foundation",
+
+  "precaution_compaction": "Soil compaction required",
+  "precaution_stabilization": "Soil stabilization recommended",
+
+  "construction_cinder_recommend": "Moderate stability soil suitable with proper compaction",
+
+  "desc_laterite_soil": "Laterite soil is rich in iron and aluminum and forms in tropical climates.",
+
+  "texture_loam": "Loam",
+  "ph_range_laterite": "5.0–6.0",
+
+  "irrigation_laterite": "Moderate irrigation",
+
+  "fertilizer_laterite": "High phosphorus fertilizers needed",
+
+  "spacing_60_60": "60×60",
+
+  "precaution_drainage_required": "Proper drainage required",
+
+  "construction_laterite_recommend": "Suitable with proper soil compaction",
+  "desc_peat_soil": "Peat soil contains high organic matter and forms in waterlogged areas.",
+  "ph_range_peat": "4.0–5.5",
+
+  
+
+  "season_wet": "Wet season",
+
+  "irrigation_peat": "Minimal irrigation required",
+
+  "fertilizer_peat": "Lime required to balance acidity",
+
+  "spacing_25_25": "25×25",
+  "construction_peat_recommend": "Avoid heavy structures due to weak soil strength",
+
+  "climate_very_high": "Very High",
+  "climate_sensitive": "Sensitive",
+  "desc_yellow_soil": "Yellow soil is formed in humid regions with hydrated iron oxides.",
+  "ph_range_yellow": "5.5–6.5",
+
+
+
+  "irrigation_yellow": "Moderate irrigation",
+
+  "fertilizer_yellow": "Organic compost recommended",
+
+
+  "precaution_drainage_needed": "Drainage needed",
+
+  "construction_yellow_recommend": "Suitable for light construction"
+
+}

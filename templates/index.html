@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soil Vision 360 — Intelligent Soil Intelligence Platform</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/static.css') }}">
+</head>
+<body class="theme-default" id="mainBody">
+
+<!-- ═══════════════════════════════════════ ANIMATED BG ═══════════════════════════════════════ -->
+<div class="bg-canvas" id="bgCanvas"></div>
+<div class="grain-overlay"></div>
+
+<!-- ═══════════════════════════════════════ NAVBAR ═══════════════════════════════════════════ -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="2" opacity="0.3"/>
+        <path d="M20 8 C14 8 8 14 8 20 C8 26 12 30 20 32 C28 30 32 26 32 20 C32 14 26 8 20 8Z" fill="currentColor" opacity="0.6"/>
+        <circle cx="20" cy="20" r="6" fill="currentColor"/>
+        <path d="M20 14 L20 6 M26 17 L33 13 M26 23 L33 27 M20 26 L20 34 M14 23 L7 27 M14 17 L7 13" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <span class="brand-text">Soil<span class="brand-accent">Vision</span><span class="brand-360">360</span></span>
+  </div>
+  <div class="nav-links">
+       <div class="lang-toggle" onclick="toggleLang()">
+  <div class="slider" id="langSlider"></div>
+
+  <div class="lang-option">
+    <img src="/static/img/en.png">
+    <span>EN</span>
+  </div>
+
+  <div class="lang-option">
+    <img src="/static/img/ta.png">
+    <span>TA</span>
+  </div>
+
+</div>
+     <button class="nav-icon-btn" onclick="openChatbotPage()" title="Open Chatbot">💬</button>
+    <button class="nav-btn" data-lang="signin" id="navAuthBtn"
+onclick="window.location.href='/auth/login-page'">
+Sign In
+</button>
+    <div class="nav-user-menu" id="navUserMenu">
+    <!-- ── SIGN IN button (visible when logged out) ── -->
+    
+
+<button class="nav-btn" data-lang="reports" onclick="openMyReports()">📄 Reports</button>
+
+<button class="nav-btn" data-lang="admin" id="navAdminLink" onclick="window.location.href='/admin'" style="display:none">
+⚙️ Admin
+</button>
+
+<button class="nav-btn" data-lang="signout" onclick="logoutUser()">🚪 Sign Out</button>
+
+<span class="nav-user-name">
+👤 <span id="navUserName" data-lang="user">User</span>
+</span>
+</div>
+</div>
+</nav>
+
+<!-- ═══════════════════════════════════════ HERO SECTION ══════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge" data-lang="ai_soil">
+      <span class="badge-dot"></span>
+      AI-Powered Soil Intelligence
+    </div>
+    <h1 class="hero-title" data-lang="know_soil">
+      Know Your <span class="gradient-text">Soil</span><br>
+      Unlock Its <span class="gradient-text"data-lang="unlock_potential">Potential</span>
+    </h1>
+    <p class="hero-subtitle" data-lang="hero_description">
+      Upload a soil image. Get instant analysis — water retention, crop compatibility,
+      construction stability, and a full land potential report in seconds.
+    </p>
+    <div class="hero-stats">
+      <div class="stat-card"><span class="stat-num">8</span><span class="stat-label"  data-lang="soil_types">Soil Types</span></div>
+      
+    </div>
+    <a href="/analyze" class="hero-cta" data-lang="start_analysis">Start Analysis →</a>
+  </div>
+  <div class="hero-visual">
+    <div class="soil-globe">
+      <div class="globe-ring"></div>
+      <div class="globe-ring r2"></div>
+      <div class="globe-ring r3"></div>
+      <div class="globe-core">
+        <div class="globe-layers">
+          <div class="layer l1"></div>
+          <div class="layer l2"></div>
+          <div class="layer l3"></div>
+          <div class="layer l4"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ FOOTER ═══════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-brand">
+      <span class="brand-text">Soil<span class="brand-accent">Vision</span><span class="brand-360">360</span></span>
+      <p data-lang="platform">Professional Soil Intelligence Platform</p>
+    </div>
+    <div class="footer-links">
+      <span>© 2024 SoilVision360</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════ SCRIPTS ══════════════════════════════════════════ -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

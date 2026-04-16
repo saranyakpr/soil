@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Soil Vision 360</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ══ VARIABLES ══════════════════════════════════════════ */
+    :root {
+      --bg:       #07090d;
+      --surface:  #0d1117;
+      --card:     #111620;
+      --border:   rgba(255,255,255,0.07);
+      --border-h: rgba(74,222,128,0.35);
+      --text:     #e8edf5;
+      --muted:    #6b7280;
+      --accent:   #4ade80;
+      --accent2:  #22d3ee;
+      --danger:   #f87171;
+      --glow:     rgba(74,222,128,0.18);
+      --r:        18px;
+      --r-sm:     10px;
+      --mono:     'JetBrains Mono', monospace;
+      --body:     'Space Grotesk', sans-serif;
+      --head:     'Syne', sans-serif;
+      --ease:     cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    /* ══ RESET ═══════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
+    body {
+      font-family: var(--body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* ══ ANIMATED BACKGROUND LAYERS ══════════════════════════ */
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      animation: orbFloat 14s ease-in-out infinite alternate;
+    }
+    .orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(74,222,128,0.07) 0%, transparent 70%);
+      top: -200px; left: -150px;
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(34,211,238,0.05) 0%, transparent 70%);
+      bottom: -180px; right: -100px;
+      animation-delay: -5s;
+    }
+    .orb-3 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(74,222,128,0.04) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: -9s;
+    }
+    @keyframes orbFloat {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(30px, -20px) scale(1.05); }
+      100% { transform: translate(-15px, 25px) scale(0.96); }
+    }
+
+    /* Grain texture */
+    .grain {
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Floating soil particles */
+    .particles {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+    }
+    .particle {
+      position: absolute;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0;
+      animation: particleDrift var(--dur, 8s) ease-in-out infinite;
+      animation-delay: var(--delay, 0s);
+    }
+    @keyframes particleDrift {
+      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+      10%  { opacity: 0.4; }
+      90%  { opacity: 0.2; }
+      100% { transform: translateY(-60px) scale(1.2); opacity: 0; }
+    }
+
+    /* Grid pattern overlay */
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(74,222,128,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(74,222,128,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    /* ══ PAGE LAYOUT ═════════════════════════════════════════ */
+    .page {
+      position: relative; z-index: 2;
+      width: 100%;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ══ LEFT PANEL — branding ═══════════════════════════════ */
+    .panel-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 64px;
+      position: relative;
+      overflow: hidden;
+    }
+    .panel-left::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(74,222,128,0.15) 30%, rgba(74,222,128,0.15) 70%, transparent);
+    }
+
+    /* Brand */
+    .brand {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 56px;
+      text-decoration: none;
+    }
+    .brand-mark {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(34,211,238,0.1));
+      border: 1px solid rgba(74,222,128,0.25);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s var(--ease);
+    }
+    .brand-mark svg { width: 22px; height: 22px; color: var(--accent); }
+    .brand:hover .brand-mark { transform: rotate(15deg); border-color: var(--accent); box-shadow: 0 0 20px var(--glow); }
+    .brand-wordmark { font-family: var(--head); font-size: 1.3rem; font-weight: 800; }
+    .brand-wordmark .g { color: var(--accent); }
+    .brand-wordmark .b { color: var(--accent2); font-size: 0.85em; }
+
+    /* Headline */
+    .left-headline {
+      font-family: var(--head);
+      font-size: clamp(2.4rem, 3.5vw, 3.4rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
+    .left-headline .line-accent {
+      display: block;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .left-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.65;
+      max-width: 380px;
+      margin-bottom: 48px;
+    }
+
+    /* Feature list */
+    .features { display: flex; flex-direction: column; gap: 18px; margin-bottom: 56px; }
+    .feature {
+      display: flex; align-items: flex-start; gap: 14px;
+      opacity: 0;
+      transform: translateX(-20px);
+      animation: slideInLeft 0.5s var(--ease) forwards;
+      animation-delay: var(--d, 0s);
+    }
+    @keyframes slideInLeft {
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .feat-icon {
+      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+      background: rgba(74,222,128,0.08);
+      border: 1px solid rgba(74,222,128,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .feat-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
+    .feat-desc  { color: var(--muted); font-size: 0.8rem; }
+
+    /* Soil type pills */
+    .soil-pills {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .soil-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600;
+      border: 1px solid; cursor: default;
+      transition: all 0.25s;
+    }
+    .soil-pill:hover { transform: translateY(-2px); }
+    .sp-black  { background: rgba(55,65,81,0.15);  border-color: rgba(55,65,81,0.4);  color: #9ca3af; }
+    .sp-red    { background: rgba(127,29,29,0.15); border-color: rgba(127,29,29,0.4); color: #f87171; }
+    .sp-yellow { background: rgba(120,53,15,0.15); border-color: rgba(120,53,15,0.4); color: #fbbf24; }
+    .sp-brown  { background: rgba(74,44,10,0.15);  border-color: rgba(74,44,10,0.4);  color: #d97706; }
+
+    /* ══ RIGHT PANEL — form ══════════════════════════════════ */
+    .panel-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 64px;
+    }
+
+    .form-card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(13,17,23,0.8);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 44px 40px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(74,222,128,0.04);
+      animation: cardAppear 0.6s var(--ease) forwards;
+    }
+    @keyframes cardAppear {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Card header */
+    .form-eyebrow {
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--accent); font-weight: 600; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .eyebrow-line {
+      flex: 1; height: 1px;
+      background: linear-gradient(to right, rgba(74,222,128,0.3), transparent);
+    }
+    .form-title {
+      font-family: var(--head); font-size: 2rem; font-weight: 800;
+      letter-spacing: -0.02em; margin-bottom: 6px;
+    }
+    .form-sub {
+      color: var(--muted); font-size: 0.88rem; margin-bottom: 32px;
+    }
+    .form-sub a {
+      color: var(--accent); text-decoration: none; font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .form-sub a:hover { opacity: 0.8; text-decoration: underline; }
+
+    /* ══ FORM FIELDS ══════════════════════════════════════════ */
+    .field { margin-bottom: 18px; position: relative; }
+
+    .field-label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.78rem; font-weight: 600; color: var(--text);
+      margin-bottom: 7px; letter-spacing: 0.01em;
+    }
+    .field-label a {
+      color: var(--muted); text-decoration: none; font-weight: 400;
+      font-size: 0.75rem; transition: color 0.2s;
+    }
+    .field-label a:hover { color: var(--accent); }
+
+    .field-wrap {
+      position: relative;
+      display: flex; align-items: center;
+    }
+    .field-icon {
+      position: absolute; left: 14px;
+      color: var(--muted); font-size: 1rem;
+      pointer-events: none;
+      transition: color 0.25s;
+      z-index: 1;
+    }
+    .field-input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--text);
+      font-family: var(--body);
+      font-size: 0.92rem;
+      padding: 12px 44px 12px 42px;
+      outline: none;
+      transition: all 0.25s var(--ease);
+      appearance: none;
+    }
+    .field-input::placeholder { color: var(--muted); }
+    .field-input:focus {
+      border-color: var(--accent);
+      background: rgba(74,222,128,0.04);
+      box-shadow: 0 0 0 3px rgba(74,222,128,0.1);
+    }
+    .field-input:focus ~ .field-icon,
+    .field-input:focus + .field-icon { color: var(--accent); }
+    .field-input.error {
+      border-color: var(--danger);
+      background: rgba(248,113,113,0.04);
+      box-shadow: 0 0 0 3px rgba(248,113,113,0.08);
+    }
+    /* eye toggle button */
+    .eye-btn {
+      position: absolute; right: 14px;
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 1rem; padding: 0;
+      transition: color 0.2s; z-index: 1; line-height: 1;
+    }
+    .eye-btn:hover { color: var(--text); }
+
+    /* Field error message */
+    .field-error {
+      font-size: 0.73rem; color: var(--danger);
+      margin-top: 5px; display: none; align-items: center; gap: 4px;
+    }
+    .field-error.show { display: flex; animation: errShake 0.3s ease; }
+    @keyframes errShake {
+      0%,100% { transform: translateX(0); }
+      25%     { transform: translateX(-4px); }
+      75%     { transform: translateX(4px); }
+    }
+
+    /* Remember me row */
+    .extras-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .checkbox-wrap {
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer; user-select: none;
+    }
+    .checkbox-custom {
+      width: 18px; height: 18px; border-radius: 5px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .checkbox-custom.checked { background: var(--accent); border-color: var(--accent); }
+    .checkbox-custom.checked::after { content: '✓'; font-size: 0.7rem; color: #000; font-weight: 700; }
+    .checkbox-label { font-size: 0.82rem; color: var(--muted); }
+    .forgot-link { font-size: 0.82rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .forgot-link:hover { color: var(--accent); }
+
+    /* ══ SUBMIT BUTTON ═══════════════════════════════════════ */
+    .submit-btn {
+      width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: linear-gradient(135deg, var(--accent), #22c55e);
+      color: #0a0d07;
+      border: none;
+      border-radius: var(--r-sm);
+      font-family: var(--body);
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 13px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s var(--ease);
+      letter-spacing: 0.01em;
+      margin-bottom: 20px;
+    }
+    .submit-btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--glow); }
+    .submit-btn:hover::before { opacity: 1; }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Loading state */
+    .btn-spinner {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2.5px solid rgba(0,0,0,0.2);
+      border-top-color: #0a0d07;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .submit-btn.loading .btn-text  { display: none; }
+    .submit-btn.loading .btn-arrow { display: none; }
+    .submit-btn.loading .btn-spinner { display: block; }
+
+    /* Divider */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 18px;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-text { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+    /* Alert banner */
+    .alert-banner {
+      display: none;
+      align-items: flex-start; gap: 10px;
+      padding: 12px 14px; border-radius: var(--r-sm);
+      font-size: 0.82rem; margin-bottom: 18px;
+      animation: fadeIn 0.3s ease;
+    }
+    .alert-banner.show { display: flex; }
+    .alert-banner.error   { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); color: #fca5a5; }
+    .alert-banner.success { background: rgba(74,222,128,0.08);  border: 1px solid rgba(74,222,128,0.2);  color: #86efac; }
+    .alert-icon { flex-shrink: 0; }
+    .alert-msg b { color: inherit; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Bottom link */
+    .bottom-link {
+      text-align: center; font-size: 0.83rem; color: var(--muted);
+    }
+    .bottom-link a { color: var(--accent); text-decoration: none; font-weight: 600; transition: opacity 0.2s; }
+    .bottom-link a:hover { opacity: 0.8; }
+
+    /* ══ BACK LINK ════════════════════════════════════════════ */
+    .back-link {
+      position: fixed; top: 24px; left: 28px; z-index: 10;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.82rem; color: var(--muted);
+      text-decoration: none;
+      background: rgba(13,17,23,0.7);
+      border: 1px solid var(--border);
+      padding: 7px 14px; border-radius: 20px;
+      backdrop-filter: blur(10px);
+      transition: all 0.25s;
+    }
+    .back-link:hover { color: var(--text); border-color: var(--border-h); }
+
+    /* ══ BOTTOM NAV ══════════════════════════════════════════ */
+    .page-nav {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px;
+      background: rgba(13,17,23,0.8);
+      border: 1px solid var(--border);
+      padding: 6px;
+      border-radius: 20px;
+      backdrop-filter: blur(12px);
+      z-index: 10;
+    }
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--border); transition: all 0.3s;
+    }
+    .nav-dot.active { background: var(--accent); box-shadow: 0 0 8px var(--glow); transform: scale(1.2); }
+
+    /* ══ RESPONSIVE ══════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .page { grid-template-columns: 1fr; }
+      .panel-left { display: none; }
+      .panel-right { padding: 40px 24px; }
+    }
+    @media (max-width: 480px) {
+      .panel-right { padding: 24px 16px; }
+      .form-card { padding: 32px 24px; }
+    }
+    /* LIGHT LOGIN REDESIGN OVERRIDE */
+    :root {
+      --bg: #edf8f3;
+      --surface: #ffffff;
+      --card: #ffffff;
+      --border: rgba(60, 116, 90, 0.18);
+      --border-h: rgba(47, 158, 99, 0.45);
+      --text: #18324a;
+      --muted: #60748a;
+      --accent: #2f9e63;
+      --accent2: #2f80ed;
+      --danger: #d64545;
+      --glow: rgba(47, 158, 99, 0.18);
+      --r: 8px;
+      --r-sm: 8px;
+    }
+
+    body {
+      background:
+        linear-gradient(135deg, rgba(47, 158, 99, 0.12), rgba(47, 128, 237, 0.12)),
+        linear-gradient(180deg, #f5fbf7 0%, #edf8f3 48%, #e7f2ff 100%);
+      color: var(--text);
+    }
+
+    .bg-orb,
+    .particles,
+    .page-nav {
+      display: none;
+    }
+
+    .grain {
+      opacity: 0;
+    }
+
+    .grid-overlay {
+      background-image:
+        linear-gradient(rgba(47, 158, 99, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(47, 128, 237, 0.07) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: linear-gradient(180deg, rgba(24, 50, 74, 0.45), transparent 80%);
+    }
+
+    .page {
+      grid-template-columns: minmax(0, 1.05fr) minmax(420px, 0.95fr);
+    }
+
+    .panel-left {
+      padding: 92px 70px 64px;
+    }
+
+    .panel-left::after {
+      background: linear-gradient(to bottom, transparent, rgba(47, 158, 99, 0.22), transparent);
+    }
+
+    .back-link {
+      color: #24794d;
+      background: rgba(255, 255, 255, 0.78);
+      border-color: var(--border);
+      border-radius: 999px;
+      box-shadow: 0 10px 28px rgba(73, 124, 98, 0.12);
+    }
+
+    .back-link:hover {
+      color: var(--accent2);
+      border-color: var(--border-h);
+    }
+
+    .brand-mark {
+      background: linear-gradient(135deg, #f7fff9, #e9f7ff);
+      border-color: rgba(60, 116, 90, 0.18);
+      border-radius: 8px;
+      box-shadow: 0 12px 30px rgba(47, 158, 99, 0.16);
+    }
+
+    .brand:hover .brand-mark {
+      border-color: var(--accent);
+      box-shadow: 0 14px 32px rgba(47, 158, 99, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .left-headline {
+      letter-spacing: 0;
+      max-width: 620px;
+    }
+
+    .left-headline .line-accent,
+    .brand-wordmark .g {
+      color: var(--accent);
+      background: none;
+      -webkit-text-fill-color: currentColor;
+    }
+
+    .brand-wordmark .b {
+      color: var(--accent2);
+    }
+
+    .left-sub {
+      color: var(--muted);
+      max-width: 560px;
+      font-size: 1.04rem;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      max-width: 680px;
+      margin-bottom: 34px;
+    }
+
+    .feature {
+      display: block;
+      min-height: 138px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 14px 34px rgba(83, 128, 105, 0.1);
+      transform: none;
+    }
+
+    .feat-icon {
+      width: 38px;
+      height: 38px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      background: #e8f2ff;
+      border-color: rgba(47, 128, 237, 0.18);
+      color: var(--accent2);
+    }
+
+    .feat-title {
+      color: var(--text);
+    }
+
+    .feat-desc {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .soil-pill {
+      background: rgba(255, 255, 255, 0.68);
+      border-color: var(--border);
+      color: var(--muted);
+      border-radius: 999px;
+    }
+
+    .sp-black {
+      display: none;
+    }
+
+    .sp-red,
+    .sp-yellow,
+    .sp-brown,
+    .sp-cinder,
+    .sp-laterite,
+    .sp-peat {
+      background: rgba(255, 255, 255, 0.68);
+      border-color: var(--border);
+      color: var(--muted);
+    }
+
+    .panel-right {
+      padding: 78px 56px;
+    }
+
+    .form-card {
+      max-width: 450px;
+      background: rgba(255, 255, 255, 0.94);
+      border-color: var(--border);
+      border-radius: 8px;
+      box-shadow: 0 24px 70px rgba(59, 104, 83, 0.16);
+      backdrop-filter: blur(18px);
+    }
+
+    .form-eyebrow {
+      width: fit-content;
+      background: #ecfbf2;
+      border: 1px solid #c6ead5;
+      border-radius: 999px;
+      padding: 7px 11px;
+      color: #24794d;
+    }
+
+    .eyebrow-line {
+      display: none;
+    }
+
+    .form-title,
+    .field-label {
+      color: var(--text);
+    }
+
+    .form-sub,
+    .bottom-link,
+    .checkbox-label,
+    .field-label a {
+      color: var(--muted);
+    }
+
+    .form-sub a,
+    .bottom-link a {
+      color: #24794d;
+    }
+
+    .field-icon,
+    .eye-btn {
+      color: var(--muted);
+    }
+
+    .field-input {
+      background: #f6fbf8;
+      border-color: var(--border);
+      color: var(--text);
+      border-radius: 8px;
+    }
+
+    .field-input::placeholder {
+      color: #8ca0b3;
+    }
+
+    .field-input:focus {
+      background: #ffffff;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(47, 158, 99, 0.13);
+    }
+
+    .field-input.error {
+      border-color: var(--danger);
+      background: #fff1f1;
+      box-shadow: 0 0 0 4px rgba(214, 69, 69, 0.1);
+    }
+
+    .checkbox-custom {
+      background: #ffffff;
+      border-color: var(--border-h);
+      border-radius: 5px;
+    }
+
+    .checkbox-custom.checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .checkbox-custom.checked::after {
+      color: #ffffff;
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 14px 30px rgba(47, 128, 237, 0.2);
+    }
+
+    .submit-btn:hover {
+      box-shadow: 0 18px 36px rgba(47, 158, 99, 0.24);
+    }
+
+    .btn-spinner {
+      border-color: rgba(255, 255, 255, 0.44);
+      border-top-color: #ffffff;
+    }
+
+    .alert-banner.error {
+      background: #fff1f1;
+      border-color: #f2c8c8;
+      color: var(--danger);
+    }
+
+    .alert-banner.success {
+      background: #ecfbf2;
+      border-color: #c6ead5;
+      color: #24794d;
+    }
+
+    code {
+      color: #24794d !important;
+      background: rgba(47, 158, 99, 0.08);
+      border: 1px solid #c6ead5;
+      border-radius: 6px;
+      padding: 2px 5px;
+    }
+
+    .panel-right > div[style] {
+      color: var(--muted) !important;
+    }
+
+    @media (max-width: 900px) {
+      .panel-left {
+        display: flex;
+        padding: 84px 28px 20px;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-right {
+        padding: 28px 24px 52px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .panel-left {
+        padding: 76px 18px 14px;
+      }
+
+      .panel-right {
+        padding: 18px 14px 38px;
+      }
+
+      .form-card {
+        padding: 26px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── BG EFFECTS ── -->
+<div class="bg-orb orb-1"></div>
+<div class="bg-orb orb-2"></div>
+<div class="bg-orb orb-3"></div>
+<div class="grain"></div>
+<div class="grid-overlay"></div>
+<div class="particles" id="particles"></div>
+
+<!-- ── BACK LINK ── -->
+<a class="back-link" href="/">← Back to App</a>
+
+<!-- ── PAGE ── -->
+<div class="page">
+
+  <!-- ═══════════════════ LEFT PANEL ═══════════════════════ -->
+  <div class="panel-left">
+
+    <a class="brand" href="/">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10" opacity="0.4"/>
+          <path d="M12 5 C8 5 5 8 5 12 C5 16 8 18 12 19 C16 18 19 16 19 12 C19 8 16 5 12 5Z" fill="currentColor" opacity="0.5"/>
+          <circle cx="12" cy="12" r="4" fill="currentColor"/>
+          <path d="M12 9V4 M15.5 10.5L20 8 M15.5 13.5L20 16 M12 15V20 M8.5 13.5L4 16 M8.5 10.5L4 8" stroke-width="1.2" opacity="0.6"/>
+        </svg>
+      </div>
+      <div class="brand-wordmark">Soil<span class="g">Vision</span><span class="b">360</span></div>
+    </a>
+
+    <h1 class="left-headline" data-lang="analysis_platform">
+      Intelligent Soil<br>
+      <span class="line-accent">Analysis Platform</span>
+    </h1>
+    <p class="left-sub" data-lang="soil_upload_desc">
+      Upload a soil image, get instant classification, detailed agricultural and construction scores, and a downloadable PDF report.
+    </p>
+
+    <div class="features">
+      <div class="feature" style="--d: 0.1s">
+        <div class="feat-icon">🔬</div>
+        <div>
+          <div class="feat-title" data-lang="ai_classification">AI-Powered Classification</div>
+          <div class="feat-desc" data-lang="soil_detection_desc">Detects Black, Red, Yellow,Clay,Cinder,peat,laterite & Alluvial soils with confidence scoring</div>
+        </div>
+      </div>
+      <div class="feature" style="--d: 0.2s">
+        <div class="feat-icon">📊</div>
+        <div>
+      
+          <div class="feat-desc" data-lang="metrics_desc">Water retention, crop score, construction stability, ROI, flood risk & more</div>
+        </div>
+      </div>
+      <div class="feature" style="--d: 0.4s">
+        <div class="feat-icon">📄</div>
+        <div>
+          <div class="feat-title" data-lang="pdf_reports">PDF Reports with QR Code</div>
+          <div class="feat-desc" data-lang="pdf_report_desc">Professional downloadable reports tied to your unique Soil ID</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="soil-pills">
+      <span class="soil-pill sp-black" data-lang="black_soil">🌑 Black Soil</span>
+      <span class="soil-pill sp-red" data-lang="red_soil">🔴 Red Soil</span>
+      <span class="soil-pill sp-yellow" data-lang="clay_soil">🟤Clay</span>
+      <span class="soil-pill sp-brown" data-lang="alluvial_soil">🟫 Alluvial Soil</span>
+      <span class="soil-pill sp-cinder" data-lang="cinder_soil">🪨 Cinder Soil</span>
+      <span class="soil-pill sp-laterite" data-lang="laterite_soil">🧱 Laterite Soil</span>
+      <span class="soil-pill sp-peat" data-lang="peat_soil">🌿 Peat Soil</span>
+      <span class="soil-pill sp-yellow" data-lang="yellow_soil">🌕 Yellow Soil</span>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════ RIGHT PANEL ══════════════════════ -->
+  <div class="panel-right">
+    <div class="form-card">
+
+      <div class="form-eyebrow" data-lang="welcome_back">
+        Welcome back
+        <div class="eyebrow-line"></div>
+      </div>
+      <h2 class="form-title" data-lang="signin">Sign In</h2>
+     <p class="form-sub">
+  <span data-lang="dont_have_account">Don't have an account?</span>
+  <a href="/auth/register-page">
+    <span data-lang="create_account">Create one free</span> →
+  </a>
+</p>
+
+      <!-- Alert banner -->
+      <div class="alert-banner" id="alertBanner">
+        <span class="alert-icon"></span>
+        <div class="alert-msg" id="alertMsg"></div>
+      </div>
+
+      <!-- Email -->
+      <div class="field">
+        <div class="field-label">
+          <span data-lang="email_address">Email Address</span>
+        </div>
+        <div class="field-wrap">
+          <span class="field-icon">✉</span>
+          <input
+            class="field-input"
+            id="email"
+            type="email"
+            placeholder="kaviya@example.com"
+            autocomplete="email"
+            spellcheck="false"
+          >
+        </div>
+        <div class="field-error" id="emailErr" data-lang="valid_email_error">⚠ Please enter a valid email address</div>
+      </div>
+
+      <!-- Password -->
+      <div class="field">
+        <div class="field-label">
+          <span data-lang="password">Password</span>
+          <a href="#" onclick="showForgot(event)" data-lang="forgot_password">Forgot password?</a>
+        </div>
+        <div class="field-wrap">
+          <span class="field-icon">🔒</span>
+          <input
+            class="field-input"
+            id="password"
+            type="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          >
+          <button class="eye-btn" id="eyeBtn" onclick="togglePassword()" type="button">👁</button>
+        </div>
+        <div class="field-error" id="passErr" data-lang="password_required">⚠ Password is required</div>
+      </div>
+
+      <!-- Remember / Forgot -->
+      <div class="extras-row">
+        <div class="checkbox-wrap" onclick="toggleRemember()">
+          <div class="checkbox-custom" id="rememberBox"></div>
+          <span class="checkbox-label" data-lang="remember_me">Remember me</span>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button class="submit-btn" id="submitBtn" onclick="handleLogin()">
+        <span class="btn-text" data-lang="sign_in_btn">Sign In to Soil Vision 360</span>
+        <span class="btn-arrow">→</span>
+        <div class="btn-spinner"></div>
+      </button>
+
+      <!-- Bottom -->
+      <div class="bottom-link" data-lang="new_user">
+        New to Soil Vision 360? <a href="/auth/register-page" data-lang="create_free_account">Create a free account</a>
+      </div>
+
+    </div>
+
+    <!-- Demo hint -->
+    <div style="margin-top: 16px; text-align: center; font-size: 0.75rem; color: var(--muted);">
+      <span>Demo admin: </span>
+      <code style="font-family: var(--mono); color: var(--accent); font-size: 0.72rem;">admin@soilvision360.com</code>
+      <span> / </span>
+      <code style="font-family: var(--mono); color: var(--accent); font-size: 0.72rem;">admin123</code>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── PAGE NAV DOTS ── -->
+<div class="page-nav">
+  <div class="nav-dot active"></div>
+  <div class="nav-dot"></div>
+</div>
+
+<script>
+'use strict';
+
+// ── PARTICLES ────────────────────────────────────────────────────────────────
+(function spawnParticles() {
+  const container = document.getElementById('particles');
+  const SOIL_COLORS = ['#4ade80', '#22d3ee', '#a3e635', '#d97706', '#f59e0b'];
+  for (let i = 0; i < 22; i++) {
+    const el = document.createElement('div');
+    el.className = 'particle';
+    const color = SOIL_COLORS[i % SOIL_COLORS.length];
+    el.style.cssText = `
+      left: ${Math.random() * 100}%;
+      background: ${color};
+      width: ${2 + Math.random() * 3}px;
+      height: ${2 + Math.random() * 3}px;
+      --dur: ${6 + Math.random() * 10}s;
+      --delay: ${-Math.random() * 12}s;
+      opacity: 0;
+    `;
+    container.appendChild(el);
+  }
+})();
+
+// ── FORM STATE ───────────────────────────────────────────────────────────────
+let remember = false;
+
+function toggleRemember() {
+  remember = !remember;
+  document.getElementById('rememberBox').classList.toggle('checked', remember);
+}
+
+function togglePassword() {
+  const inp = document.getElementById('password');
+  const btn = document.getElementById('eyeBtn');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    inp.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+
+// ── VALIDATION ───────────────────────────────────────────────────────────────
+function validateEmail(val) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+}
+
+function setFieldError(inputId, errId, show) {
+  const input = document.getElementById(inputId);
+  const err   = document.getElementById(errId);
+  if (show) {
+    input.classList.add('error');
+    err.classList.add('show');
+  } else {
+    input.classList.remove('error');
+    err.classList.remove('show');
+  }
+  return !show;
+}
+
+// Live validation
+document.getElementById('email').addEventListener('input', function() {
+  if (this.value.length > 3) setFieldError('email', 'emailErr', !validateEmail(this.value));
+});
+document.getElementById('password').addEventListener('input', function() {
+  if (this.value.length > 0) setFieldError('password', 'passErr', this.value.length === 0);
+});
+
+// ── ALERT HELPER ─────────────────────────────────────────────────────────────
+function showAlert(type, message) {
+  const banner = document.getElementById('alertBanner');
+  const msg    = document.getElementById('alertMsg');
+  banner.className = `alert-banner show ${type}`;
+  banner.querySelector('.alert-icon').textContent = type === 'error' ? '⚠️' : '✅';
+  msg.innerHTML = message;
+  banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function hideAlert() {
+  document.getElementById('alertBanner').classList.remove('show');
+}
+
+// ── LOGIN ────────────────────────────────────────────────────────────────────
+async function handleLogin() {
+  hideAlert();
+
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  // Validate
+  let valid = true;
+  valid = setFieldError('email',    'emailErr', !validateEmail(email))    && valid;
+  valid = setFieldError('password', 'passErr',  password.length === 0)    && valid;
+  if (!valid) return;
+
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/auth/login', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: "include",
+      body:    JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      // Success — store minimal state and redirect
+      sessionStorage.setItem('sv360_user', JSON.stringify(data.user));
+      showAlert('success', `<b>Welcome back, ${data.user.name}!</b> Redirecting…`);
+
+      // Pulse the button green
+      btn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+      btn.innerHTML = '<span>✓ Signed in!</span>';
+
+      setTimeout(() => {
+        if (data.user.role === 'admin') {
+          window.location.href = '/admin';
+        } else {
+          window.location.href = '/';
+        }
+      }, 1000);
+
+    } else {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+      showAlert('error', data.error || 'Invalid email or password. Please try again.');
+      setFieldError('email',    'emailErr', true);
+      setFieldError('password', 'passErr',  true);
+    }
+
+  } catch (err) {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    showAlert('error', '<b>Connection error.</b> Please check the server is running.');
+  }
+}
+
+// Enter key submit
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleLogin();
+});
+
+// ── FORGOT PASSWORD ──────────────────────────────────────────────────────────
+function showForgot(e) {
+  e.preventDefault();
+  showAlert('success', '<b>Reset link sent!</b> Check your inbox. (Feature coming soon — server not connected)');
+}
+
+// ── OAUTH DEMO ───────────────────────────────────────────────────────────────
+function oauthDemo(provider) {
+  showAlert('success', `<b>${provider} OAuth</b> is not yet configured. Use email/password to sign in.`);
+}
+
+// ── ENTER → SUBMIT ───────────────────────────────────────────────────────────
+['email', 'password'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+  });
+});
+
+// ── AUTO-FILL DEMO CREDENTIALS ───────────────────────────────────────────────
+// Shift-click the demo hint to fill credentials
+document.addEventListener('click', e => {
+  if (e.target.tagName === 'CODE' && e.shiftKey) {
+    document.getElementById('email').value    = 'admin@soilvision360.com';
+    document.getElementById('password').value = 'admin123';
+    hideAlert();
+  }
+});
+</script>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const lang = localStorage.getItem("lang") || "en";
+  loadLang(lang);
+});
+</script>
+</body>
+</html>

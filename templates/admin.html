@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Soil Vision 360</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── VARIABLES ── */
+    :root {
+      --bg:        #07090e;
+      --surface:   #0f1218;
+      --card:      #141920;
+      --border:    rgba(255,255,255,0.07);
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --accent:    #10b981;
+      --accent2:   #06b6d4;
+      --danger:    #ef4444;
+      --warn:      #f59e0b;
+      --info:      #6366f1;
+      --radius:    14px;
+      --r-sm:       8px;
+      --mono:      'JetBrains Mono', monospace;
+      --main:      'Space Grotesk', sans-serif;
+      --display:   'Syne', sans-serif;
+    }
+
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--main); background: var(--bg); color: var(--text);
+           display: flex; min-height: 100vh; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: var(--main); }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      position: sticky;
+      top: 0;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      padding: 22px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .logo-text { font-family: var(--display); font-weight: 800; font-size: 1rem; }
+    .logo-badge { font-size: 0.6rem; background: var(--accent); color: #000;
+                  padding: 1px 6px; border-radius: 4px; font-weight: 700; margin-left: 4px; }
+
+    .sidebar-nav { flex: 1; padding: 12px 8px; }
+    .nav-section-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em;
+                         color: var(--muted); padding: 8px 12px; margin-top: 8px; }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: var(--r-sm);
+      font-size: 0.875rem; font-weight: 500;
+      color: var(--muted); margin-bottom: 2px;
+      transition: all 0.2s; position: relative;
+      border: none; background: none; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+    .nav-item.active { background: rgba(16,185,129,0.12); color: var(--accent); }
+    .nav-item.active::before {
+      content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
+      width: 3px; background: var(--accent); border-radius: 0 3px 3px 0;
+    }
+    .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .nav-badge { margin-left: auto; background: var(--accent); color: #000;
+                 font-size: 0.7rem; font-weight: 700; padding: 1px 7px; border-radius: 10px; }
+    .nav-badge.warn { background: var(--warn); }
+    .nav-badge.danger { background: var(--danger); }
+
+    .sidebar-footer {
+      padding: 16px; border-top: 1px solid var(--border);
+      font-size: 0.78rem; color: var(--muted);
+    }
+    .admin-avatar {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.04); padding: 8px 10px; border-radius: var(--r-sm);
+    }
+    .avatar-circle { width: 30px; height: 30px; border-radius: 50%;
+                     background: linear-gradient(135deg, var(--accent), var(--accent2));
+                     display: flex; align-items: center; justify-content: center;
+                     font-size: 0.75rem; font-weight: 700; color: #000; flex-shrink: 0; }
+    .avatar-info .name  { font-weight: 600; color: var(--text); font-size: 0.82rem; }
+    .avatar-info .role  { color: var(--muted); font-size: 0.72rem; }
+
+    /* ── MAIN CONTENT ── */
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    .topbar {
+      height: 62px; background: var(--surface); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-title { font-family: var(--display); font-size: 1.1rem; font-weight: 700; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .topbar-btn {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      padding: 6px 14px; border-radius: 8px; font-size: 0.82rem;
+      transition: all 0.2s;
+    }
+    .topbar-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .topbar-btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+                animation: pulse 1.5s infinite; }
+    .live-label { font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(0.8); } }
+
+    .content { padding: 28px; flex: 1; }
+
+    /* ── TABS ── */
+    .tabs { display: flex; gap: 4px; margin-bottom: 24px;
+            background: var(--surface); border: 1px solid var(--border);
+            padding: 4px; border-radius: var(--radius); width: fit-content; }
+    .tab-btn {
+      padding: 8px 18px; border-radius: 10px; font-size: 0.85rem; font-weight: 500;
+      background: none; border: none; color: var(--muted); transition: all 0.2s;
+    }
+    .tab-btn.active { background: rgba(16,185,129,0.15); color: var(--accent); font-weight: 600; }
+    .tab-btn:hover:not(.active) { color: var(--text); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── STAT CARDS ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 22px;
+      position: relative; overflow: hidden; transition: all 0.3s;
+    }
+    .stat-card:hover { border-color: rgba(16,185,129,0.3); transform: translateY(-2px); }
+    .stat-card::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(16,185,129,0.04), transparent);
+      pointer-events: none;
+    }
+    .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .stat-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center;
+                 justify-content: center; font-size: 1rem; }
+    .stat-icon.green  { background: rgba(16,185,129,0.12); }
+    .stat-icon.blue   { background: rgba(6,182,212,0.12); }
+    .stat-icon.amber  { background: rgba(245,158,11,0.12); }
+    .stat-icon.purple { background: rgba(99,102,241,0.12); }
+    .stat-value { font-family: var(--display); font-size: 2.2rem; font-weight: 800; line-height: 1; }
+    .stat-value.green  { color: var(--accent); }
+    .stat-value.blue   { color: var(--accent2); }
+    .stat-value.amber  { color: var(--warn); }
+    .stat-value.purple { color: var(--info); }
+    .stat-delta { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+    .stat-delta span { color: var(--accent); }
+    .stat-bar { margin-top: 12px; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; }
+    .stat-bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+    .stat-bar-fill.green  { background: var(--accent); }
+    .stat-bar-fill.blue   { background: var(--accent2); }
+    .stat-bar-fill.amber  { background: var(--warn); }
+    .stat-bar-fill.purple { background: var(--info); }
+
+    /* ── CHARTS GRID ── */
+    .charts-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .chart-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 22px;
+    }
+    .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .chart-title { font-weight: 700; font-size: 0.95rem; }
+    .chart-subtitle { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .chart-action { font-size: 0.78rem; color: var(--accent); background: none; border: none; padding: 0; }
+
+    /* Bar chart */
+    .bar-chart-wrap { display: flex; flex-direction: column; gap: 14px; }
+    .bar-row { display: flex; align-items: center; gap: 12px; }
+    .bar-label-left { font-size: 0.8rem; color: var(--muted); min-width: 140px; }
+    .bar-track { flex: 1; height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 5px; transition: width 1.2s cubic-bezier(0.23,1,0.32,1); }
+    .bar-val { font-size: 0.78rem; color: var(--text); font-family: var(--mono); min-width: 38px; text-align: right; }
+
+    /* Donut chart */
+    .donut-wrap { display: flex; align-items: center; gap: 24px; }
+    .donut-svg-wrap { position: relative; flex-shrink: 0; }
+    .donut-svg { transform: rotate(-90deg); }
+    .donut-center {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .donut-center-num { font-family: var(--display); font-size: 1.4rem; font-weight: 800; color: var(--text); }
+    .donut-center-lbl { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .donut-legend { display: flex; flex-direction: column; gap: 8px; }
+    .legend-row { display: flex; align-items: center; gap: 8px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .legend-name { font-size: 0.8rem; color: var(--muted); flex: 1; }
+    .legend-count { font-size: 0.8rem; color: var(--text); font-family: var(--mono); }
+    .legend-pct { font-size: 0.75rem; color: var(--muted); }
+
+    /* ── MINI CHARTS ROW ── */
+    .mini-charts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .mini-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px;
+    }
+    .mini-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .mini-value { font-family: var(--display); font-size: 1.8rem; font-weight: 800; color: var(--text); margin: 6px 0; }
+    .mini-spark { height: 36px; display: flex; align-items: flex-end; gap: 3px; }
+    .spark-bar { flex: 1; border-radius: 2px 2px 0 0; opacity: 0.7; transition: all 0.3s; }
+    .spark-bar:hover { opacity: 1; }
+
+    /* ── DATA TABLE ── */
+    .table-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; margin-bottom: 24px;
+    }
+    .table-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 22px; border-bottom: 1px solid var(--border);
+    }
+    .table-search {
+      display: flex; gap: 10px; align-items: center;
+    }
+    .search-input {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: var(--text); padding: 7px 14px; border-radius: var(--r-sm);
+      font-family: var(--main); font-size: 0.85rem; width: 240px;
+    }
+    .search-input:focus { outline: none; border-color: var(--accent); }
+    .filter-select {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: var(--text); padding: 7px 12px; border-radius: var(--r-sm);
+      font-family: var(--main); font-size: 0.85rem; cursor: pointer;
+    }
+    .filter-select option { background: #1a1a2e; }
+    .export-btn {
+      background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25);
+      color: var(--accent); padding: 7px 14px; border-radius: var(--r-sm);
+      font-size: 0.82rem; font-weight: 600; transition: all 0.2s;
+    }
+    .export-btn:hover { background: rgba(16,185,129,0.2); }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: rgba(255,255,255,0.03); }
+    th { padding: 12px 16px; font-size: 0.72rem; color: var(--muted); text-transform: uppercase;
+         letter-spacing: 0.08em; font-weight: 600; text-align: left; border-bottom: 1px solid var(--border); }
+    td { padding: 13px 16px; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    tr:last-child td { border-bottom: none; }
+
+    .soil-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+    }
+    .badge-black  { background: rgba(100,116,139,0.15); color: #94a3b8; }
+    .badge-red    { background: rgba(239,68,68,0.12);   color: #f87171; }
+    .badge-yellow { background: rgba(245,158,11,0.12);  color: #fbbf24; }
+    .badge-brown  { background: rgba(180,120,50,0.12);  color: #d97706; }
+
+    .risk-tag { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+    .risk-low      { background: rgba(16,185,129,0.12); color: #10b981; }
+    .risk-medium   { background: rgba(245,158,11,0.12); color: #f59e0b; }
+    .risk-high     { background: rgba(239,68,68,0.12);  color: #ef4444; }
+    .risk-critical { background: rgba(239,68,68,0.25);  color: #ef4444; }
+
+    .score-pill {
+      font-family: var(--mono); font-size: 0.8rem; font-weight: 700;
+      padding: 2px 9px; border-radius: 20px;
+    }
+    .score-pill.high   { background: rgba(16,185,129,0.12); color: #10b981; }
+    .score-pill.mid    { background: rgba(245,158,11,0.12); color: #f59e0b; }
+    .score-pill.low    { background: rgba(239,68,68,0.12);  color: #ef4444; }
+
+    .action-btn-sm {
+      padding: 4px 10px; border-radius: 6px; font-size: 0.75rem;
+      border: 1px solid var(--border); background: none; color: var(--muted);
+      transition: all 0.2s; margin-right: 4px;
+    }
+    .action-btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+    .action-btn-sm.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+    .pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 22px; border-top: 1px solid var(--border);
+      font-size: 0.82rem; color: var(--muted);
+    }
+    .page-btns { display: flex; gap: 4px; }
+    .page-btn {
+      width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border);
+      background: none; color: var(--muted); font-size: 0.82rem; transition: all 0.2s;
+    }
+    .page-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .page-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+    /* ── USERS TABLE ── */
+    .user-cell { display: flex; align-items: center; gap: 10px; }
+    .user-av { width: 30px; height: 30px; border-radius: 50%;
+               background: linear-gradient(135deg, var(--accent), var(--accent2));
+               display: flex; align-items: center; justify-content: center;
+               font-size: 0.7rem; font-weight: 700; color: #000; flex-shrink: 0; }
+    .user-name  { font-weight: 600; font-size: 0.85rem; }
+    .user-email { font-size: 0.75rem; color: var(--muted); }
+    .role-badge { font-size: 0.72rem; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+    .role-admin  { background: rgba(99,102,241,0.15); color: var(--info); }
+    .role-user   { background: rgba(16,185,129,0.10); color: var(--accent); }
+    .role-analyst{ background: rgba(6,182,212,0.10);  color: var(--accent2); }
+    .status-on  { color: var(--accent); font-size: 0.75rem; }
+    .status-off { color: var(--muted);  font-size: 0.75rem; }
+
+    /* ── DISTRICT MAP PANEL ── */
+    .district-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+    .district-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px; transition: all 0.25s;
+    }
+    .district-card:hover { border-color: rgba(16,185,129,0.3); transform: translateY(-2px); }
+    .dist-name  { font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; }
+    .dist-type  { font-size: 0.78rem; margin-bottom: 10px; }
+    .dist-bar-row { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+    .dist-seg { height: 100%; }
+    .dist-seg.black  { background: #374151; }
+    .dist-seg.red    { background: #7f1d1d; }
+    .dist-seg.yellow { background: #78350f; }
+    .dist-seg.brown  { background: #4a2c0a; }
+    .dist-count { font-size: 0.72rem; color: var(--muted); }
+
+    /* ── ALERTS ── */
+    .alert {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 16px; border-radius: var(--r-sm); margin-bottom: 12px;
+      font-size: 0.85rem; border: 1px solid;
+    }
+    .alert.info    { background: rgba(99,102,241,0.08);  border-color: rgba(99,102,241,0.25);  color: #818cf8; }
+    .alert.warn    { background: rgba(245,158,11,0.08);  border-color: rgba(245,158,11,0.25);  color: #fbbf24; }
+    .alert.success { background: rgba(16,185,129,0.08);  border-color: rgba(16,185,129,0.25);  color: #10b981; }
+    .alert.danger  { background: rgba(239,68,68,0.08);   border-color: rgba(239,68,68,0.25);   color: #ef4444; }
+    .alert-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .alert-title { font-weight: 600; margin-bottom: 2px; }
+    .alert-msg   { color: var(--muted); font-size: 0.82rem; }
+
+    /* ── MODAL ── */
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+    .modal-box {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 28px; width: 100%; max-width: 440px; position: relative;
+    }
+    .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none;
+                   color: var(--muted); font-size: 1.2rem; transition: color 0.2s; }
+    .modal-close:hover { color: var(--text); }
+    .modal-title { font-family: var(--display); font-size: 1.2rem; font-weight: 800; margin-bottom: 18px; }
+    .modal-field { margin-bottom: 14px; }
+    .modal-label { font-size: 0.78rem; color: var(--muted); display: block; margin-bottom: 5px; }
+    .modal-input, .modal-select {
+      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text); padding: 9px 12px; border-radius: var(--r-sm);
+      font-family: var(--main); font-size: 0.88rem;
+    }
+    .modal-input:focus, .modal-select:focus { outline: none; border-color: var(--accent); }
+    .modal-select option { background: #1a1a2e; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-btn { flex: 1; padding: 10px; border-radius: var(--r-sm); font-weight: 600;
+                 font-size: 0.9rem; border: none; transition: all 0.2s; }
+    .modal-btn.primary { background: var(--accent); color: #000; }
+    .modal-btn.secondary { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--muted); }
+    .modal-btn:hover { opacity: 0.85; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 500;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 20px; font-size: 0.88rem; box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      transform: translateY(80px); opacity: 0;
+      transition: all 0.4s cubic-bezier(0.23,1,0.32,1); backdrop-filter: blur(10px);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-left: 3px solid var(--accent); }
+    .toast.error   { border-left: 3px solid var(--danger); }
+    .toast.warn    { border-left: 3px solid var(--warn); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+      .stat-grid   { grid-template-columns: repeat(2, 1fr); }
+      .mini-charts { grid-template-columns: repeat(2, 1fr); }
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 500px) {
+      .stat-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════ SIDEBAR ════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🌱</div>
+    <div>
+      <span class="logo-text">SoilVision</span>
+      <span class="logo-badge">ADMIN</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <button class="nav-item active" onclick="switchTab('overview')">
+      <span class="nav-icon">📊</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="switchTab('analyses')">
+      <span class="nav-icon">🔬</span> Soil Analyses
+      <span class="nav-badge" id="analysesBadge">—</span>
+    </button>
+
+    <div class="nav-section-label">Management</div>
+    <button class="nav-item" onclick="switchTab('users')">
+      <span class="nav-icon">👥</span> Users
+      <span class="nav-badge" id="usersBadge">—</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('districts')">
+      <span class="nav-icon">🗺️</span> Districts
+    </button>
+
+    <div class="nav-section-label">System</div>
+    <button class="nav-item" onclick="switchTab('alerts')">
+      <span class="nav-icon">⚠️</span> Alerts
+      <span class="nav-badge warn">3</span>
+    </button>
+    <button class="nav-item" onclick="window.location.href='/'">
+      <span class="nav-icon">↩</span> Back to App
+    </button>
+    <button class="nav-item" onclick="logout()">
+      <span class="nav-icon">🚪</span> Logout
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="admin-avatar">
+      <div class="avatar-circle" id="sidebarInitial">A</div>
+      <div class="avatar-info">
+        <div class="name" id="sidebarName">Administrator</div>
+        <div class="role">Super Admin</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════════════════════════════ MAIN ════════════════════════════════════════ -->
+<div class="main">
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-title" id="topbarTitle">📊 Dashboard Overview</div>
+    <div class="topbar-right">
+      <div class="live-label"><div class="live-dot"></div> Live Data</div>
+      <button class="topbar-btn" onclick="refreshAll()">↻ Refresh</button>
+      <button class="topbar-btn primary" onclick="openAddUserModal()">+ Add User</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ── TAB: OVERVIEW ─────────────────────────────────────────────────── -->
+    <div class="tab-panel active" id="tab-overview">
+
+      <!-- Stat Cards -->
+      <div class="stat-grid" id="statGrid">
+        <div class="stat-card">
+          <div class="stat-top">
+            <div>
+              <div class="stat-label">Total Analyses</div>
+              <div class="stat-value green" id="statAnalyses">—</div>
+              <div class="stat-delta"><span>+12%</span> vs last month</div>
+            </div>
+            <div class="stat-icon green">🔬</div>
+          </div>
+          <div class="stat-bar"><div class="stat-bar-fill green" id="bar1" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <div>
+              <div class="stat-label">Registered Users</div>
+              <div class="stat-value blue" id="statUsers">—</div>
+              <div class="stat-delta"><span>+8%</span> this week</div>
+            </div>
+            <div class="stat-icon blue">👥</div>
+          </div>
+          <div class="stat-bar"><div class="stat-bar-fill blue" id="bar2" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <div>
+              <div class="stat-label">Avg Crop Score</div>
+              <div class="stat-value amber" id="statCrop">—</div>
+              <div class="stat-delta">Platform average</div>
+            </div>
+            <div class="stat-icon amber">🌾</div>
+          </div>
+          <div class="stat-bar"><div class="stat-bar-fill amber" id="bar3" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <div>
+              <div class="stat-label">Avg Land Potential</div>
+              <div class="stat-value purple" id="statPotential">—</div>
+              <div class="stat-delta">Composite score</div>
+            </div>
+            <div class="stat-icon purple">🌍</div>
+          </div>
+          <div class="stat-bar"><div class="stat-bar-fill purple" id="bar4" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Mini sparkline cards -->
+      <div class="mini-charts">
+        <div class="mini-card">
+          <div class="mini-label">Water Retention</div>
+          <div class="mini-value" id="miniWater">—</div>
+          <div class="mini-spark" id="sparkWater"></div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-label">Construction Score</div>
+          <div class="mini-value" id="miniConst">—</div>
+          <div class="mini-spark" id="sparkConst"></div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-label">Heat Index</div>
+          <div class="mini-value" id="miniHeat">—</div>
+          <div class="mini-spark" id="sparkHeat"></div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-label">Avg Agri ROI</div>
+          <div class="mini-value" id="miniRoi">—</div>
+          <div class="mini-spark" id="sparkRoi"></div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <!-- Bar chart: avg scores -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Average Scores by Soil Type</div>
+              <div class="chart-subtitle">Platform-wide performance metrics</div>
+            </div>
+            <button class="chart-action">View all →</button>
+          </div>
+          <div class="bar-chart-wrap" id="avgScoresChart"></div>
+        </div>
+
+        <!-- Donut: soil distribution -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Soil Type Distribution</div>
+              <div class="chart-subtitle">All analysed samples</div>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <div class="donut-svg-wrap">
+              <svg class="donut-svg" id="donutSVG" width="130" height="130" viewBox="0 0 130 130"></svg>
+              <div class="donut-center">
+                <div class="donut-center-num" id="donutTotal">—</div>
+                <div class="donut-center-lbl">Total</div>
+              </div>
+            </div>
+            <div class="donut-legend" id="donutLegend"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── TAB: ANALYSES ──────────────────────────────────────────────────── -->
+    <div class="tab-panel" id="tab-analyses">
+      <div class="table-card">
+        <div class="table-header">
+          <div style="font-weight:700">Soil Analysis Reports</div>
+          <div class="table-search">
+            <input class="search-input" id="analysisSearch" placeholder="Search Soil ID, type..." oninput="filterAnalysesTable()">
+            <select class="filter-select" id="soilTypeFilter" onchange="filterAnalysesTable()">
+              <option value="">All Types</option>
+              <option>Black Soil</option><option>Red Soil</option>
+              <option>Yellow Soil</option><option>Brown/Alluvial Soil</option>
+            </select>
+            <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Soil ID</th><th>Type</th><th>Water</th><th>Crop</th>
+              <th>Construction</th><th>Land Potential</th><th>District</th>
+              <th>Risk</th><th>Date</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="analysesBody">
+            <tr><td colspan="10" style="text-align:center; color:var(--muted); padding:30px;">Loading analyses...</td></tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <span id="paginationInfo">Showing 0–0 of 0</span>
+          <div class="page-btns" id="pageBtns"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: USERS ─────────────────────────────────────────────────────── -->
+    <div class="tab-panel" id="tab-users">
+      <div class="table-card">
+        <div class="table-header">
+          <div style="font-weight:700">User Management</div>
+          <div class="table-search">
+            <input class="search-input" id="userSearch" placeholder="Search name or email..." oninput="filterUsersTable()">
+            <select class="filter-select" id="roleFilter" onchange="filterUsersTable()">
+              <option value="">All Roles</option>
+              <option>admin</option><option>analyst</option><option>user</option>
+            </select>
+            <button class="export-btn" onclick="openAddUserModal()">+ Add User</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>User</th><th>Role</th><th>Status</th>
+              <th>Reports</th><th>Last Login</th><th>API Key</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersBody">
+            <tr><td colspan="7" style="text-align:center; color:var(--muted); padding:30px;">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: DISTRICTS ─────────────────────────────────────────────────── -->
+    <div class="tab-panel" id="tab-districts">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <div>
+          <h2 style="font-family:var(--display); font-size:1.1rem;">Tamil Nadu District Map</h2>
+          <p style="color:var(--muted); font-size:0.82rem; margin-top:2px;">Soil composition by district</p>
+        </div>
+        <button class="export-btn" onclick="loadDistricts()">↻ Refresh</button>
+      </div>
+      <div class="district-grid" id="districtGrid">
+        <p style="color:var(--muted)">Loading district data...</p>
+      </div>
+    </div>
+
+    <!-- ── TAB: ALERTS ────────────────────────────────────────────────────── -->
+    <div class="tab-panel" id="tab-alerts">
+      <div style="max-width:700px;">
+        <h2 style="font-family:var(--display); font-size:1.1rem; margin-bottom:18px;">System Alerts</h2>
+
+        <div class="alert warn">
+          <span class="alert-icon">⚠️</span>
+          <div>
+            <div class="alert-title">Database connection pool nearing limit</div>
+            <div class="alert-msg">Connection pool at 78% capacity. Consider increasing pool_size in config.</div>
+          </div>
+        </div>
+        <div class="alert info">
+          <span class="alert-icon">ℹ️</span>
+          <div>
+            <div class="alert-title">PIL/Pillow not installed</div>
+            <div class="alert-msg">Image analysis running in fallback mode. Install Pillow for full accuracy: pip install Pillow numpy</div>
+          </div>
+        </div>
+        <div class="alert success">
+          <span class="alert-icon">✅</span>
+          <div>
+            <div class="alert-title">PDF generation engine ready</div>
+            <div class="alert-msg">ReportLab + qrcode installed. PDF reports fully operational.</div>
+          </div>
+        </div>
+        <div class="alert danger">
+          <span class="alert-icon">🔴</span>
+          <div>
+            <div class="alert-title">Upload folder permissions</div>
+            <div class="alert-msg">Ensure /static/uploads has write permissions: chmod 755 static/uploads</div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-weight:700; margin-bottom:12px; font-size:0.95rem;">System Info</h3>
+          <div id="systemInfo" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ════════════════════════ MODALS ═════════════════════════════════════════ -->
+<div class="modal-bg" id="addUserModal" style="display:none">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('addUserModal')">✕</button>
+    <div class="modal-title">Add New User</div>
+    <div class="modal-field">
+      <label class="modal-label">Full Name</label>
+      <input class="modal-input" id="newUserName" placeholder="e.g. Priya Sharma">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Email Address</label>
+      <input class="modal-input" id="newUserEmail" type="email" placeholder="user@example.com">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Password</label>
+      <input class="modal-input" id="newUserPass" type="password" placeholder="Min 6 characters">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Role</label>
+      <select class="modal-select" id="newUserRole">
+        <option value="user">User</option>
+        <option value="analyst">Analyst</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn secondary" onclick="closeModal('addUserModal')">Cancel</button>
+      <button class="modal-btn primary" onclick="createUser()">Create User</button>
+    </div>
+    <div id="modalMsg" style="font-size:0.82rem; margin-top:10px;"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="deleteUserModal" style="display:none">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('deleteUserModal')">✕</button>
+    <div class="modal-title">Confirm Delete</div>
+    <p style="color:var(--muted); font-size:0.88rem; margin-bottom:20px;">
+      Are you sure you want to delete user <b id="deleteUserName"></b>? This will also remove all their soil reports.
+    </p>
+    <div class="modal-actions">
+      <button class="modal-btn secondary" onclick="closeModal('deleteUserModal')">Cancel</button>
+      <button class="modal-btn primary" style="background:var(--danger);" onclick="confirmDeleteUser()">Delete User</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════════════ SCRIPTS ════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+const ADM = {
+  stats: null,
+  analyses: [],
+  users: [],
+  districts: [],
+  filteredAnalyses: [],
+  filteredUsers: [],
+  analysesPage: 1,
+  perPage: 10,
+  deleteTargetId: null,
+};
+
+const SOIL_COLORS = {
+  'Black Soil':          '#374151',
+  'Red Soil':            '#7f1d1d',
+  'Yellow Soil':         '#92400e',
+  'Brown/Alluvial Soil': '#4a2c0a',
+};
+
+// ── INIT ────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  refreshAll();
+  renderSystemInfo();
+});
+
+async function refreshAll() {
+  await Promise.all([loadStats(), loadAnalyses(), loadUsers(), loadDistricts()]);
+}
+
+// ── DATA LOADING ─────────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const res = await fetch('/api/v1/dashboard/stats');
+    const { success, data } = await res.json();
+    if (!success) return;
+    ADM.stats = data;
+    renderStats(data);
+    renderDonut(data.soil_distribution);
+    renderAvgScoresChart(data.averages);
+    renderMiniCards(data.averages);
+
+    // Update sidebar badges
+    document.getElementById('analysesBadge').textContent = data.total_analyses;
+    document.getElementById('usersBadge').textContent = data.total_users;
+  } catch (e) { console.warn('Stats load failed:', e); }
+}
+
+async function loadAnalyses() {
+  try {
+    const res = await fetch('/api/v1/reports?per_page=100');
+    const { success, data } = await res.json();
+    if (!success) return;
+    ADM.analyses = data || [];
+    ADM.filteredAnalyses = [...ADM.analyses];
+    renderAnalysesTable();
+  } catch (e) {
+    ADM.analyses = generateDemoAnalyses();
+    ADM.filteredAnalyses = [...ADM.analyses];
+    renderAnalysesTable();
+  }
+}
+
+async function loadUsers() {
+  try {
+    const res = await fetch('/admin/users');
+    const { success, data } = await res.json();
+    if (!success) return;
+    ADM.users = data || [];
+    ADM.filteredUsers = [...ADM.users];
+    renderUsersTable();
+  } catch (e) {
+    ADM.users = generateDemoUsers();
+    ADM.filteredUsers = [...ADM.users];
+    renderUsersTable();
+  }
+}
+
+async function loadDistricts() {
+  try {
+    const res = await fetch('/api/v1/map/districts');
+    const { success, data } = await res.json();
+    if (!success) return;
+    ADM.districts = data || [];
+    renderDistrictGrid();
+  } catch (e) {
+    console.warn('Districts load failed');
+  }
+}
+
+// ── RENDER: STATS ────────────────────────────────────────────────────────────
+function renderStats(data) {
+  document.getElementById('statAnalyses').textContent  = data.total_analyses.toLocaleString();
+  document.getElementById('statUsers').textContent     = data.total_users.toLocaleString();
+  document.getElementById('statCrop').textContent      = data.averages.crop_score + '%';
+  document.getElementById('statPotential').textContent = data.averages.land_potential + '%';
+
+  // Animate progress bars
+  setTimeout(() => {
+    animBar('bar1', Math.min(100, data.total_analyses / 20));
+    animBar('bar2', Math.min(100, data.total_users / 5));
+    animBar('bar3', data.averages.crop_score);
+    animBar('bar4', data.averages.land_potential);
+  }, 200);
+}
+
+function animBar(id, pct) {
+  const el = document.getElementById(id);
+  if (el) el.style.width = pct + '%';
+}
+
+// ── RENDER: MINI CARDS ───────────────────────────────────────────────────────
+function renderMiniCards(avgs) {
+  document.getElementById('miniWater').textContent = avgs.water_retention + '%';
+  document.getElementById('miniConst').textContent = avgs.construction_score + '%';
+  document.getElementById('miniHeat').textContent  = avgs.heat_index + '%';
+  document.getElementById('miniRoi').textContent   = '~21%';
+
+  renderSparkline('sparkWater', generateSparkData(avgs.water_retention), '#10b981');
+  renderSparkline('sparkConst', generateSparkData(avgs.construction_score), '#06b6d4');
+  renderSparkline('sparkHeat',  generateSparkData(avgs.heat_index), '#f59e0b');
+  renderSparkline('sparkRoi',   generateSparkData(21), '#6366f1');
+}
+
+function generateSparkData(base) {
+  return Array.from({ length: 12 }, () => Math.max(5, base + (Math.random() - 0.5) * 20));
+}
+
+function renderSparkline(id, data, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const max = Math.max(...data);
+  el.innerHTML = data.map(v => `
+    <div class="spark-bar" style="height:${Math.round((v/max)*100)}%; background:${color}; flex:1;"></div>
+  `).join('');
+}
+
+// ── RENDER: DONUT CHART ──────────────────────────────────────────────────────
+function renderDonut(dist) {
+  const total = Object.values(dist).reduce((a, b) => a + b, 0);
+  document.getElementById('donutTotal').textContent = total;
+
+  const svg = document.getElementById('donutSVG');
+  const cx = 65, cy = 65, r = 48, stroke = 18;
+  const circumference = 2 * Math.PI * r;
+  let offset = 0;
+
+  const entries = Object.entries(dist);
+  svg.innerHTML = entries.map(([type, count]) => {
+    const pct = count / total;
+    const dashArr = circumference * pct;
+    const dashOff = circumference - offset;
+    const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none"
+      stroke="${SOIL_COLORS[type] || '#555'}" stroke-width="${stroke}"
+      stroke-dasharray="${dashArr} ${circumference - dashArr}"
+      stroke-dashoffset="${circumference - offset}"
+      style="transition: stroke-dashoffset 1s ease"/>`;
+    offset += dashArr;
+    return el;
+  }).join('');
+
+  const legend = document.getElementById('donutLegend');
+  legend.innerHTML = entries.map(([type, count]) => `
+    <div class="legend-row">
+      <div class="legend-dot" style="background:${SOIL_COLORS[type] || '#555'}"></div>
+      <span class="legend-name">${type.replace('/Alluvial', '')}</span>
+      <span class="legend-count">${count}</span>
+      <span class="legend-pct">${Math.round(count/total*100)}%</span>
+    </div>
+  `).join('');
+}
+
+// ── RENDER: AVG SCORES BAR CHART ─────────────────────────────────────────────
+function renderAvgScoresChart(avgs) {
+  const el = document.getElementById('avgScoresChart');
+  const rows = [
+    { label: 'Water Retention',    val: avgs.water_retention,    color: '#06b6d4' },
+    { label: 'Crop Compatibility', val: avgs.crop_score,         color: '#10b981' },
+    { label: 'Construction Score', val: avgs.construction_score, color: '#f59e0b' },
+    { label: 'Heat Index',         val: avgs.heat_index,         color: '#ef4444' },
+    { label: 'Land Potential',     val: avgs.land_potential,     color: '#6366f1' },
+  ];
+
+  el.innerHTML = rows.map(r => `
+    <div class="bar-row">
+      <div class="bar-label-left">${r.label}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:0%; background:${r.color}" data-target="${r.val}%"></div>
+      </div>
+      <div class="bar-val">${r.val}%</div>
+    </div>
+  `).join('');
+
+  setTimeout(() => {
+    el.querySelectorAll('.bar-fill').forEach(b => b.style.width = b.getAttribute('data-target'));
+  }, 300);
+}
+
+// ── RENDER: ANALYSES TABLE ───────────────────────────────────────────────────
+function renderAnalysesTable() {
+  const body = document.getElementById('analysesBody');
+  const start = (ADM.analysesPage - 1) * ADM.perPage;
+  const slice = ADM.filteredAnalyses.slice(start, start + ADM.perPage);
+
+  if (slice.length === 0) {
+    body.innerHTML = `<tr><td colspan="10" style="text-align:center; color:var(--muted); padding:30px;">No records found</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = slice.map(r => {
+    const soilCode = r.soil_type?.split(' ')[0]?.toLowerCase() || 'brown';
+    const cScore = r.construction_score || 0;
+    const risk = r.construction_risk || (cScore >= 75 ? 'Low' : cScore >= 50 ? 'Medium' : 'High');
+    const riskClass = 'risk-' + risk.toLowerCase().replace(' ', '-');
+    const cScoreClass = cScore >= 70 ? 'high' : cScore >= 45 ? 'mid' : 'low';
+    const date = r.created_at ? new Date(r.created_at).toLocaleDateString('en-IN') : '—';
+
+    return `<tr>
+      <td><span style="font-family:var(--mono); font-size:0.78rem; color:var(--accent)">${r.soil_id}</span></td>
+      <td><span class="soil-badge badge-${soilCode}">${r.soil_type}</span></td>
+      <td><span class="score-pill ${r.water_retention>=65?'high':r.water_retention>=45?'mid':'low'}">${r.water_retention}%</span></td>
+      <td><span class="score-pill ${r.crop_score>=65?'high':r.crop_score>=45?'mid':'low'}">${r.crop_score}%</span></td>
+      <td><span class="score-pill ${cScoreClass}">${cScore}%</span></td>
+      <td><span class="score-pill ${r.land_potential_score>=65?'high':r.land_potential_score>=45?'mid':'low'}">${r.land_potential_score}%</span></td>
+      <td style="color:var(--muted); font-size:0.82rem">${r.district || '—'}</td>
+      <td><span class="risk-tag ${riskClass}">${risk}</span></td>
+      <td style="color:var(--muted); font-size:0.78rem">${date}</td>
+      <td>
+        <button class="action-btn-sm" onclick="viewReport('${r.soil_id}')">View</button>
+        <button class="action-btn-sm danger" onclick="deleteReport('${r.soil_id}')">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  renderPagination(ADM.filteredAnalyses.length);
+  document.getElementById('paginationInfo').textContent =
+    `Showing ${start + 1}–${Math.min(start + ADM.perPage, ADM.filteredAnalyses.length)} of ${ADM.filteredAnalyses.length}`;
+}
+
+function renderPagination(total) {
+  const pages = Math.ceil(total / ADM.perPage);
+  const container = document.getElementById('pageBtns');
+  container.innerHTML = Array.from({ length: Math.min(pages, 7) }, (_, i) => {
+    const p = i + 1;
+    return `<button class="page-btn ${p === ADM.analysesPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`;
+  }).join('');
+}
+
+function goToPage(p) {
+  ADM.analysesPage = p;
+  renderAnalysesTable();
+}
+
+// ── RENDER: USERS TABLE ──────────────────────────────────────────────────────
+function renderUsersTable() {
+  const body = document.getElementById('usersBody');
+
+  if (ADM.filteredUsers.length === 0) {
+    body.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--muted); padding:30px;">No users found</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = ADM.filteredUsers.map(u => {
+    const initial = u.name?.[0]?.toUpperCase() || 'U';
+    const roleClass = 'role-' + (u.role || 'user');
+    const apiKeyShort = u.api_key ? u.api_key.substring(0, 16) + '…' : '—';
+    const lastLogin = u.last_login ? new Date(u.last_login).toLocaleDateString('en-IN') : 'Never';
+    const status = u.is_active ? '<span class="status-on">● Active</span>' : '<span class="status-off">● Inactive</span>';
+
+    return `<tr>
+      <td>
+        <div class="user-cell">
+          <div class="user-av">${initial}</div>
+          <div>
+            <div class="user-name">${u.name}</div>
+            <div class="user-email">${u.email}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="role-badge ${roleClass}">${u.role || 'user'}</span></td>
+      <td>${status}</td>
+      <td style="font-family:var(--mono); font-size:0.8rem; color:var(--muted)">${u.reports_count ?? '—'}</td>
+      <td style="font-size:0.8rem; color:var(--muted)">${lastLogin}</td>
+      <td style="font-family:var(--mono); font-size:0.72rem; color:var(--muted)">${apiKeyShort}</td>
+      <td>
+        <button class="action-btn-sm" onclick="editUser(${u.id})">Edit</button>
+        <button class="action-btn-sm danger" onclick="openDeleteUser(${u.id}, '${u.name}')">Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── RENDER: DISTRICTS ────────────────────────────────────────────────────────
+function renderDistrictGrid() {
+  const grid = document.getElementById('districtGrid');
+
+  if (ADM.districts.length === 0) {
+    grid.innerHTML = '<p style="color:var(--muted)">No district data available.</p>';
+    return;
+  }
+
+  grid.innerHTML = ADM.districts.map(d => {
+    const total = d.total || 0;
+    const counts = d.counts || {};
+    const black  = counts.black  || 0;
+    const red    = counts.red    || 0;
+    const yellow = counts.yellow || 0;
+    const brown  = counts.brown  || 0;
+    const sum = black + red + yellow + brown || 1;
+
+    const dominant = d.dominant_soil || 'No data';
+    const color = SOIL_COLORS[dominant] || '#374151';
+
+    return `<div class="district-card">
+      <div class="dist-name">${d.district}</div>
+      <div class="dist-type"><span style="color:${color}; font-weight:600">● ${dominant}</span></div>
+      <div class="dist-bar-row">
+        <div class="dist-seg black"  style="flex:${black}"></div>
+        <div class="dist-seg red"    style="flex:${red}"></div>
+        <div class="dist-seg yellow" style="flex:${yellow}"></div>
+        <div class="dist-seg brown"  style="flex:${brown}"></div>
+      </div>
+      <div class="dist-count">${total} analyses · Avg potential: ${Math.round(d.avg_potential || 0)}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ── FILTERS ──────────────────────────────────────────────────────────────────
+function filterAnalysesTable() {
+  const q    = document.getElementById('analysisSearch').value.toLowerCase();
+  const type = document.getElementById('soilTypeFilter').value;
+  ADM.filteredAnalyses = ADM.analyses.filter(r =>
+    (!q    || (r.soil_id + r.soil_type + r.district).toLowerCase().includes(q)) &&
+    (!type || r.soil_type === type)
+  );
+  ADM.analysesPage = 1;
+  renderAnalysesTable();
+}
+
+function filterUsersTable() {
+  const q    = document.getElementById('userSearch').value.toLowerCase();
+  const role = document.getElementById('roleFilter').value;
+  ADM.filteredUsers = ADM.users.filter(u =>
+    (!q    || (u.name + u.email).toLowerCase().includes(q)) &&
+    (!role || u.role === role)
+  );
+  renderUsersTable();
+}
+
+// ── ACTIONS ──────────────────────────────────────────────────────────────────
+function viewReport(soilId) {
+  window.open(`/reports/view/${soilId}`, '_blank');
+}
+
+async function deleteReport(soilId) {
+  if (!confirm(`Delete report ${soilId}?`)) return;
+  showToast(`Report ${soilId} removed (demo mode)`, 'warn');
+  ADM.analyses = ADM.analyses.filter(r => r.soil_id !== soilId);
+  ADM.filteredAnalyses = ADM.filteredAnalyses.filter(r => r.soil_id !== soilId);
+  renderAnalysesTable();
+}
+
+function openAddUserModal() { document.getElementById('addUserModal').style.display = 'flex'; }
+
+async function createUser() {
+  const name  = document.getElementById('newUserName').value.trim();
+  const email = document.getElementById('newUserEmail').value.trim();
+  const pass  = document.getElementById('newUserPass').value;
+  const role  = document.getElementById('newUserRole').value;
+  const msg   = document.getElementById('modalMsg');
+
+  if (!name || !email || !pass) {
+    msg.style.color = 'var(--danger)';
+    msg.textContent = 'All fields are required.';
+    return;
+  }
+
+  try {
+    const res = await fetch('/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password: pass }),
+    });
+    const result = await res.json();
+
+    if (result.success) {
+      closeModal('addUserModal');
+      showToast('User created successfully!', 'success');
+      loadUsers();
+    } else {
+      msg.style.color = 'var(--danger)';
+      msg.textContent = result.error || 'Creation failed';
+    }
+  } catch (e) {
+    msg.style.color = 'var(--danger)';
+    msg.textContent = 'Connection error';
+  }
+}
+
+function openDeleteUser(id, name) {
+  ADM.deleteTargetId = id;
+  document.getElementById('deleteUserName').textContent = name;
+  document.getElementById('deleteUserModal').style.display = 'flex';
+}
+
+async function confirmDeleteUser() {
+  try {
+    await fetch(`/admin/users/${ADM.deleteTargetId}`, { method: 'DELETE' });
+    closeModal('deleteUserModal');
+    showToast('User deleted', 'success');
+    loadUsers();
+  } catch (e) {
+    showToast('Delete failed', 'error');
+  }
+}
+
+function editUser(id) { showToast('Edit user: feature coming soon', 'warn'); }
+
+// ── EXPORT ───────────────────────────────────────────────────────────────────
+function exportCSV() {
+  const headers = ['Soil ID','Type','Water','Crop','Construction','Land Potential','District','Date'];
+  const rows = ADM.filteredAnalyses.map(r => [
+    r.soil_id, r.soil_type, r.water_retention, r.crop_score,
+    r.construction_score, r.land_potential_score, r.district || '',
+    r.created_at ? new Date(r.created_at).toLocaleDateString() : ''
+  ]);
+
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'soil_analyses.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exported!', 'success');
+}
+
+// ── SYSTEM INFO ──────────────────────────────────────────────────────────────
+function renderSystemInfo() {
+  const info = [
+    { k: 'Flask Environment', v: 'Development' },
+    { k: 'API Version',       v: 'v1' },
+    { k: 'Database',          v: 'MySQL / SQLAlchemy' },
+    { k: 'PDF Engine',        v: 'ReportLab' },
+    { k: 'Map Library',       v: 'Leaflet.js 1.9.4' },
+    { k: 'Auth Method',       v: 'Session + API Key' },
+  ];
+
+  document.getElementById('systemInfo').innerHTML = info.map(i => `
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); padding:12px;">
+      <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em">${i.k}</div>
+      <div style="font-weight:600; margin-top:4px; font-size:0.88rem">${i.v}</div>
+    </div>
+  `).join('');
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  const panel = document.getElementById('tab-' + tabId);
+  if (panel) panel.classList.add('active');
+
+  const titles = {
+    overview: '📊 Dashboard Overview', analyses: '🔬 Soil Analyses',
+    users: '👥 User Management', districts: '🗺️ District Map', alerts: '⚠️ System Alerts',
+  };
+  document.getElementById('topbarTitle').textContent = titles[tabId] || 'Admin Panel';
+
+  // Mark active nav
+  event?.target?.classList.add('active');
+}
+
+// ── MODAL UTILS ──────────────────────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+// ── LOGOUT ───────────────────────────────────────────────────────────────────
+async function logout() {
+  await fetch('/auth/logout', { method: 'POST' });
+  window.location.href = '/';
+}
+
+// ── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// ── DEMO DATA ────────────────────────────────────────────────────────────────
+function generateDemoAnalyses() {
+  const types = ['Black Soil', 'Red Soil', 'Yellow Soil', 'Brown/Alluvial Soil'];
+  const districts = ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem'];
+  return Array.from({ length: 40 }, (_, i) => {
+    const type = types[i % 4];
+    return {
+      soil_id:            `SV360-${type.split(' ')[0].substring(0,3).toUpperCase()}-${1000+i}`,
+      soil_type:          type,
+      water_retention:    40 + Math.round(Math.random() * 50),
+      crop_score:         45 + Math.round(Math.random() * 45),
+      construction_score: 35 + Math.round(Math.random() * 55),
+      heat_index:         55 + Math.round(Math.random() * 35),
+      land_potential_score: 50 + Math.round(Math.random() * 40),
+      construction_risk:  ['Low', 'Medium', 'High'][i % 3],
+      district:           districts[i % 5],
+      created_at:         new Date(Date.now() - i * 86400000).toISOString(),
+    };
+  });
+}
+
+function generateDemoUsers() {
+  const names  = ['Admin User', 'Priya Sharma', 'Ravi Kumar', 'Anjali Rao', 'Mohammed Ali'];
+  const emails = ['admin@sv360.com','priya@email.com','ravi@email.com','anjali@email.com','ali@email.com'];
+  const roles  = ['admin', 'analyst', 'user', 'user', 'analyst'];
+  return names.map((name, i) => ({
+    id: i + 1, name, email: emails[i], role: roles[i], is_active: true,
+    last_login: i === 0 ? null : new Date(Date.now() - i * 3600000).toISOString(),
+    api_key: 'sv360key' + Math.random().toString(36).substring(2, 22),
+    reports_count: Math.round(Math.random() * 30),
+  }));
+}
+</script>
+</body>
+</html>

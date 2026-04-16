@@ -1,0 +1,74 @@
+{
+  "Black Soil": {
+    "layers": [
+      {"layer": "Top Black Clay", "depth_start": 0, "depth_end": 0.5},
+      {"layer": "Moist Clay", "depth_start": 0.5, "depth_end": 2},
+      {"layer": "Hard Clay", "depth_start": 2, "depth_end": 4},
+      {"layer": "Basalt Rock", "depth_start": 4, "depth_end": 10}
+    ]
+  },
+
+  "Red Soil": {
+    "layers": [
+      {"layer": "Red Sandy Soil", "depth_start": 0, "depth_end": 0.5},
+      {"layer": "Sandy Clay", "depth_start": 0.5, "depth_end": 2},
+      {"layer": "Laterite Layer", "depth_start": 2, "depth_end": 4},
+      {"layer": "Rock", "depth_start": 4, "depth_end": 10}
+    ]
+  },
+
+  "Clay Soil": {
+    "layers": [
+      {"layer": "Clay Topsoil", "depth_start": 0, "depth_end": 0.4},
+      {"layer": "Dense Clay", "depth_start": 0.4, "depth_end": 2},
+      {"layer": "Wet Clay", "depth_start": 2, "depth_end": 5},
+      {"layer": "Bedrock", "depth_start": 5, "depth_end": 10}
+    ]
+  },
+
+  "Alluvial Soil": {
+    "layers": [
+      {"layer": "Silt Layer", "depth_start": 0, "depth_end": 0.6},
+      {"layer": "Fine Sand", "depth_start": 0.6, "depth_end": 2},
+      {"layer": "Clay Mix", "depth_start": 2, "depth_end": 4},
+      {"layer": "River Sand", "depth_start": 4, "depth_end": 10}
+    ]
+  },
+
+  "Cinder Soil": {
+    "layers": [
+      {"layer": "Volcanic Ash", "depth_start": 0, "depth_end": 0.5},
+      {"layer": "Porous Cinder", "depth_start": 0.5, "depth_end": 2},
+      {"layer": "Compact Lava Dust", "depth_start": 2, "depth_end": 4},
+      {"layer": "Basalt Rock", "depth_start": 4, "depth_end": 10}
+    ]
+  },
+
+  "Laterite Soil": {
+    "layers": [
+      {"layer": "Laterite Topsoil", "depth_start": 0, "depth_end": 0.5},
+      {"layer": "Iron Rich Layer", "depth_start": 0.5, "depth_end": 2},
+      {"layer": "Hard Laterite", "depth_start": 2, "depth_end": 4},
+      {"layer": "Rock", "depth_start": 4, "depth_end": 10}
+    ]
+  },
+
+  "Peat Soil": {
+    "layers": [
+      {"layer": "Organic Peat", "depth_start": 0, "depth_end": 1},
+      {"layer": "Wet Organic Layer", "depth_start": 1, "depth_end": 3},
+      {"layer": "Clay Peat Mix", "depth_start": 3, "depth_end": 6},
+      {"layer": "Soft Bedrock", "depth_start": 6, "depth_end": 10}
+    ]
+  },
+
+  "Yellow Soil": {
+    "layers": [
+      {"layer": "Yellow Sandy Soil", "depth_start": 0, "depth_end": 0.5},
+      {"layer": "Loamy Sand", "depth_start": 0.5, "depth_end": 2},
+      {"layer": "Clay Layer", "depth_start": 2, "depth_end": 4},
+      {"layer": "Rock", "depth_start": 4, "depth_end": 10}
+    ]
+  }
+
+  }

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Soil Vision 360 — Soil Analysis</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/static.css') }}">
+</head>
+<body id="mainBody" class="theme-default">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <span class="brand-text">
+      Soil<span class="brand-accent">Vision</span><span class="brand-360">360</span>
+    </span>
+  </div>
+  <div class="nav-links">
+    <a href="/" class="nav-link" data-lang="home">Home</a>
+    <button class="nav-icon-btn" onclick="openChatbotPage()">💬</button>
+  </div>
+</nav>
+<!-- ═══════════════════════════════════════ UPLOAD SECTION ════════════════════════════════════ -->
+<section class="upload-section" id="upload">
+  <div class="section-header">
+    <h2 class="section-title" data-lang="analyze_title">Analyze Your Soil</h2>
+    <p class="section-sub" data-lang="analyze_sub">Upload a clear soil sample image for instant AI classification</p>
+  </div>
+
+  <div class="upload-container">
+    <!-- Drop Zone -->
+    <div class="upload-zone" id="uploadZone">
+      <div class="upload-icon">
+        <svg viewBox="0 0 64 64" fill="none">
+          <path d="M32 12 L32 44 M20 24 L32 12 L44 24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <path d="M12 48 L12 52 Q12 56 16 56 L48 56 Q52 56 52 52 L52 48" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h3 class="upload-title" data-lang="drop_image">Drop Soil Image Here</h3>
+      <p class="upload-hint" data-lang="upload_hint">PNG, JPG, JPEG, WEBP — max 16MB</p>
+      <label class="upload-btn" for="fileInput" data-lang="choose_file">Choose File</label>
+      <input type="file" id="fileInput" accept="image/*" hidden>
+    </div>
+
+    <!-- Preview Panel -->
+    <div class="preview-panel" id="previewPanel" style="display:none">
+      <div class="preview-image-wrap">
+        <img id="previewImg" alt="Soil preview">
+        <div class="preview-overlay">
+          <button class="preview-remove" onclick="clearImage()">✕</button>
+        </div>
+      </div>
+      <div class="preview-meta" id="previewMeta"></div>
+      
+
+      <button class="analyze-btn" id="analyzeBtn" onclick="analyzeSoil()">
+        <span class="btn-text" data-lang="analyze_btn">Analyze Soil</span>
+        <span class="btn-icon">⚡</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ LOADER ═══════════════════════════════════════════ -->
+<div class="analysis-loader" id="analysisLoader" style="display:none">
+  <div class="loader-content">
+    <div class="dna-loader">
+      <div class="dna-strand">
+        <div class="dna-node n1"></div>
+        <div class="dna-node n2"></div>
+        <div class="dna-node n3"></div>
+        <div class="dna-node n4"></div>
+        <div class="dna-node n5"></div>
+      </div>
+    </div>
+    <p class="loader-text" id="loaderText">Scanning soil composition...</p>
+    <div class="loader-steps" id="loaderSteps">
+      <div class="loader-step active">Color analysis</div>
+      <div class="loader-step">Soil classification</div>
+      <div class="loader-step">Score computation</div>
+      <div class="loader-step">Report generation</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ RESULTS SECTION ═══════════════════════════════════ -->
+<section class="results-section" id="results" style="display:none">
+  <div class="results-header">
+    <div class="soil-id-badge" id="soilIdBadge">
+      <span class="soil-id-label" data-lang="soil_id">Soil ID</span>
+      <span class="soil-id-value" id="soilIdDisplay">SV360-BLK-0000</span>
+      <button class="copy-btn" onclick="copySoilId()">⎘</button>
+    </div>
+    <div class="results-actions">
+      <button class="action-btn" onclick="downloadReport()" data-lang="download_pdf">📄 Download PDF</button>
+      <button class="action-btn secondary" onclick="shareResult()" data-lang="share">↗ Share</button>
+    </div>
+  </div>
+
+  <!-- 3D FLIP CARD -->
+  <div class="card-flip-wrapper">
+    <div class="card-flip" id="resultCard">
+      <!-- FRONT -->
+      <div class="card-face card-front">
+        <div class="card-soil-type" id="cardSoilType">Black Soil</div>
+        <div class="card-soil-icon" id="cardSoilIcon">🌑</div>
+        <p class="card-description" id="cardDescription">Loading...</p>
+        <div class="card-rgb" id="cardRGB">RGB: 0, 0, 0</div>
+        <div class="card-meta-row">
+          <span id="cardTexture">Texture: —</span>
+          <span id="cardPH">pH: —</span>
+        </div>
+        <button class="card-flip-btn" onclick="flipCard()" data-lang="view_scores">View Scores →</button>
+      </div>
+      <!-- BACK -->
+      <div class="card-face card-back">
+        <div class="card-back-title">Analysis Scores</div>
+        <div class="circular-scores" id="circularScores">
+          <!-- Injected by JS -->
+        </div>
+        <button class="card-flip-btn" onclick="flipCard()" data-lang="back_info">← Back to Info</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORE GRID -->
+  <div class="score-grid" id="scoreGrid">
+    <!-- Injected by JS -->
+  </div>
+
+  <!-- ADVANCED ANALYTICS -->
+  <div class="analytics-grid">
+    <div class="analytics-card" id="constructionPanel">
+      <h3 class="analytics-title" data-lang="construction_analysis">🏗️ Construction Analysis</h3>
+      <div class="house-model" id="houseModel">
+        <svg class="house-svg" id="houseSVG" viewBox="0 0 200 180" fill="none">
+          <!-- House body -->
+          <rect x="40" y="90" width="120" height="80" class="house-body" rx="2"/>
+          <!-- Door -->
+          <rect x="83" y="130" width="34" height="40" class="house-door" rx="2"/>
+          <!-- Window left -->
+          <rect x="52" y="105" width="25" height="22" class="house-window" rx="2"/>
+          <!-- Window right -->
+          <rect x="123" y="105" width="25" height="22" class="house-window" rx="2"/>
+          <!-- Roof -->
+          <polygon points="20,90 100,20 180,90" class="house-roof"/>
+          <!-- Chimney -->
+          <rect x="130" y="30" width="15" height="30" class="house-chimney"/>
+          <!-- Ground -->
+          <line x1="10" y1="170" x2="190" y2="170" stroke="currentColor" stroke-width="2"/>
+          <!-- Cracks (shown conditionally) -->
+          <path d="M60 120 L65 135 L58 148" class="house-crack" id="crack1"/>
+          <path d="M130 110 L125 125 L132 138" class="house-crack" id="crack2"/>
+        </svg>
+        <div class="house-status" id="houseStatus">Analyzing...</div>
+      </div>
+      <div class="construction-info" id="constructionInfo"></div>
+    </div>
+
+    <div class="analytics-card">
+      <h3 class="analytics-title" data-lang="crop_simulation">🌱 Crop Simulation</h3>
+      <div class="crop-selector">
+        <label class="option-label" data-lang="select_crop">Select Crop</label>
+        <select class="option-select" id="cropSelect" onchange="runCropSimulation()">
+          <option>Wheat</option><option>Cotton</option><option>Sugarcane</option>
+          <option>Paddy</option><option>Groundnut</option><option>Millets</option>
+          <option>Maize</option><option>Sunflower</option>
+        </select>
+      </div>
+      <div class="crop-simulation" id="cropSimulation">
+        <div class="crop-stages" id="cropStages"></div>
+        <div class="crop-yield" id="cropYield"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIMATE & RISK -->
+  <div class="climate-risk-grid">
+    <div class="risk-card" id="riskCard">
+      <h3  data-lang="risk_assessment">⚠️ Risk Assessment</h3>
+      <div class="risk-grid" id="riskGrid"></div>
+    </div>
+    <div class="climate-card" id="climateCard">
+      <h3 data-lang="climate_impact">🌍 Climate Impact</h3>
+      <div class="climate-grid" id="climateGrid"></div>
+    </div>
+    <div class="nutrients-card">
+      <h3 data-lang="nutrient_profile">🧪 Nutrient Profile</h3>
+      <div class="nutrient-bars" id="nutrientBars"></div>
+    </div>
+  </div>
+
+ <div class="crop-rec-section">
+  <div class="section-mini-title" data-lang="soil_layers">Predicted Soil Layers</div>
+
+  <div id="soilLayers" class="crop-rec-grid">
+    <div class="crop-rec-card">
+      <div class="crop-rec-title" data-lang="layer_red_sandy">Red Sandy Soil</div>
+      <div style="margin-top:6px;font-size:0.8rem;color:var(--c-muted)">
+        0m - 0.5m
+      </div>
+    </div>
+
+    <div class="crop-rec-card">
+      <div class="crop-rec-title" data-lang="layer_sandy_clay">Sandy Clay</div>
+      <div style="margin-top:6px;font-size:0.8rem;color:var(--c-muted)">
+        0.5m - 2m
+      </div>
+    </div>
+
+    <div class="crop-rec-card">
+      <div class="crop-rec-title" data-lang="layer_laterite">Laterite Layer</div>
+      <div style="margin-top:6px;font-size:0.8rem;color:var(--c-muted)">
+        2m - 4m
+      </div>
+    </div>
+
+    <div class="crop-rec-card">
+      <div class="crop-rec-title" data-lang="layer_rock">Rock</div>
+      <div style="margin-top:6px;font-size:0.8rem;color:var(--c-muted)">
+        4m - 10m
+      </div>
+    </div>
+  </div>
+</div>
+  <!-- CROP RECOMMENDATIONS -->
+  <div class="crop-rec-section">
+    <h3 class="section-mini-title" data-lang="crop_recommendations">Crop Recommendations</h3>
+    <div class="crop-rec-grid" id="cropRecGrid"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ ADMIN DASHBOARD ══════════════════════════════════ -->
+<section class="admin-section" id="adminSection" style="display:none">
+  <div class="section-header">
+    <h2 class="section-title" data-lang="admin_dashboard">Admin Dashboard</h2>
+    <button class="admin-refresh" onclick="loadDashboard()" data-lang="refresh">↻ Refresh</button>
+  </div>
+  <div class="dashboard-stats" id="dashboardStats"></div>
+  <div class="dashboard-charts">
+    <div class="chart-card">
+      <h3 data-lang="soil_distribution">Soil Type Distribution</h3>
+      <div class="donut-chart" id="soilDonut"></div>
+    </div>
+    <div class="chart-card">
+      <h3 data-lang="recent_analysis">Recent Analyses</h3>
+      <div class="bar-chart" id="scoreChart"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ AUTH MODAL ═══════════════════════════════════════ -->
+<div class="modal-overlay" id="authModal" style="display:none">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchTab('login')" data-lang="sign_in">Sign In</button>
+      <button class="modal-tab" onclick="switchTab('register')" data-lang="register">Register</button>
+    </div>
+    <div class="modal-body" id="loginForm">
+      <h3 data-lang="welcome_back">Welcome Back</h3>
+      <input class="modal-input" type="email" id="loginEmail" placeholder="Email">
+      <input class="modal-input" type="password" id="loginPassword" placeholder="Password">
+      <button class="modal-submit" onclick="doLogin()">Sign In</button>
+      <p class="modal-hint">Admin: admin@soilvision360.com / admin123</p>
+    </div>
+    <div class="modal-body" id="registerForm" style="display:none">
+      <h3 data-lang="create_account">Create Account</h3>
+      <input class="modal-input" type="text" id="regName" placeholder="Full Name" data-lang="full_name">
+      <input class="modal-input" type="email" id="regEmail" placeholder="Email" data-lang="email">
+      <input class="modal-input" type="password" id="regPassword" placeholder="Password (min 6 chars)" data-lang="password">
+      <button class="modal-submit" onclick="doRegister()" data-lang="create_account">Create Account</button>
+    </div>
+    <div class="modal-message" id="authMessage"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ TOAST ════════════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
