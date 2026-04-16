@@ -5,6 +5,7 @@ Supports development, testing, and production environments
 
 import os
 from datetime import timedelta
+from urllib.parse import quote_plus
 
 # Load environment variables from .env file if it exists
 try:
@@ -18,14 +19,20 @@ class Config:
     """Base configuration"""
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'AIzaSyC7a7325C6RHFMfMTWTfj-zHGqQzWTGly0'
     
-   # Database
-    MYSQL_HOST = "127.0.0.1"
-    MYSQL_PORT = 3306
-    MYSQL_USER = "root"
-    MYSQL_PASSWORD = ""
-    MYSQL_DB = "soil_vision_360"
+    # Database
+    MYSQL_HOST = os.environ.get("DB_HOST", "127.0.0.1")
+    MYSQL_PORT = int(os.environ.get("DB_PORT", 3306))
+    MYSQL_USER = os.environ.get("DB_USER", "root")
+    MYSQL_PASSWORD = os.environ.get("DB_PASSWORD", "")
+    MYSQL_DB = os.environ.get("DB_NAME", "soil_vision_360")
 
-    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:@127.0.0.1:3306/soil_vision_360"
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "DATABASE_URL",
+        (
+            f"mysql+pymysql://{quote_plus(MYSQL_USER)}:"
+            f"{quote_plus(MYSQL_PASSWORD)}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
+        ),
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_recycle': 3600,
