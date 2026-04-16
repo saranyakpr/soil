@@ -894,12 +894,49 @@ SoilCategory.YELLOW: {
 # ─────────────────────────────────────────────────────────────────────────────
 
 class SoilAIModel:
+    @staticmethod
+    def _needs_model_download(model_path):
+        if not os.path.exists(model_path):
+            return True
+
+        try:
+            with open(model_path, "rb") as f:
+                head = f.read(128)
+            return head.startswith(b"version https://git-lfs.github.com/spec/")
+        except OSError:
+            return True
+
+    @staticmethod
+    def _download_model(model_url, model_path):
+        import requests
+
+        os.makedirs(os.path.dirname(model_path), exist_ok=True)
+        temp_path = model_path + ".download"
+
+        with requests.get(model_url, stream=True, timeout=120) as response:
+            response.raise_for_status()
+            with open(temp_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=1024 * 1024):
+                    if chunk:
+                        f.write(chunk)
+
+        os.replace(temp_path, model_path)
+
     def __init__(self, model_path="soil_model.h5"):
         import tensorflow as tf
         import h5py
         import json
         from tensorflow.keras.models import load_model
         self.model = None
+
+        model_url = os.environ.get("SOIL_MODEL_URL")
+        if self._needs_model_download(model_path) and model_url:
+            try:
+                print("Downloading soil AI model from SOIL_MODEL_URL...")
+                self._download_model(model_url, model_path)
+                print("Soil AI model downloaded.")
+            except Exception as e:
+                print(f"Soil AI model download failed, RGB fallback will be used: {e}")
 
         # 1. மாடல் கன்பிக் (Config) திருத்தம்
         try:
