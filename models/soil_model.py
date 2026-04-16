@@ -23,7 +23,6 @@ from dataclasses import dataclass, field, asdict
 from typing import Optional, Dict, List, Tuple, Any
 from datetime import datetime
 from enum import Enum
-from tensorflow.keras.models import load_model
 import numpy as np
 from PIL import Image
 import json
@@ -1394,7 +1393,13 @@ class SoilModel:
         self.id_gen      = SoilIDGenerator()
         self.reader      = ImageColorReader()
         model_path = os.path.join(os.path.dirname(__file__), "soil_model.h5")
-        self.ai_model = SoilAIModel(model_path)
+        self.model_path = model_path
+        self.ai_model = None
+
+    def _get_ai_model(self):
+        if self.ai_model is None:
+            self.ai_model = SoilAIModel(self.model_path)
+        return self.ai_model
 
     # ── PUBLIC API ────────────────────────────────────────────────────────────
 
@@ -1412,8 +1417,9 @@ class SoilModel:
 
         # 2. Classify
         try:
-            soil_type, confidence = self.ai_model.predict(image_path)
-        except:
+            soil_type, confidence = self._get_ai_model().predict(image_path)
+        except Exception as e:
+            print(f"AI prediction unavailable, RGB fallback will be used: {e}")
             soil_type, confidence = self.classifier.classify(color)
 
         layers = get_soil_layers(soil_type)
