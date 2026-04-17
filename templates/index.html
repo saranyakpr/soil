@@ -17,7 +17,7 @@
 
 <!-- ═══════════════════════════════════════ NAVBAR ═══════════════════════════════════════════ -->
 <nav class="navbar">
-  <div class="nav-brand">
+  <a class="nav-brand" href="/" aria-label="Go to home page">
     <div class="brand-icon">
       <svg viewBox="0 0 40 40" fill="none">
         <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="2" opacity="0.3"/>
@@ -27,7 +27,7 @@
       </svg>
     </div>
     <span class="brand-text">Soil<span class="brand-accent">Vision</span><span class="brand-360">360</span></span>
-  </div>
+  </a>
   <div class="nav-links">
        <div class="lang-toggle" onclick="toggleLang()">
   <div class="slider" id="langSlider"></div>
@@ -44,10 +44,10 @@
 
 </div>
      <button class="nav-icon-btn" onclick="openChatbotPage()" title="Open Chatbot">💬</button>
-    <button class="nav-btn" data-lang="signin" id="navAuthBtn"
+    <!-- <button class="nav-btn" data-lang="signin" id="navAuthBtn"
 onclick="window.location.href='/auth/login-page'">
 Sign In
-</button>
+</button> -->
     <div class="nav-user-menu" id="navUserMenu">
     <!-- ── SIGN IN button (visible when logged out) ── -->
     
@@ -106,6 +106,62 @@ Sign In
 </section>
 
 <!-- ═══════════════════════════════════════ FOOTER ═══════════════════════════════════════════ -->
+<section class="soil-classes-section" id="soil-classes">
+  <div class="section-header">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      8 Soil Classes
+    </div>
+    <h2 class="section-title">Soil Types Classified by Soil Vision 360</h2>
+    <p class="section-sub">
+      The trained model identifies uploaded soil images across these eight supported soil categories.
+    </p>
+  </div>
+
+  <div class="soil-classes-grid" aria-label="Supported soil classes">
+    <article class="soil-class-card alluvial">
+      <span class="soil-class-code">01</span>
+      <h3>Alluvial Soil</h3>
+      <p>River-deposited soil known for agriculture-friendly minerals and strong crop potential.</p>
+    </article>
+    <article class="soil-class-card black">
+      <span class="soil-class-code">02</span>
+      <h3>Black Soil</h3>
+      <p>Clay-rich soil with high moisture retention, often suitable for cotton and deep-root crops.</p>
+    </article>
+    <article class="soil-class-card cinder">
+      <span class="soil-class-code">03</span>
+      <h3>Cinder Soil</h3>
+      <p>Porous volcanic material with strong drainage behavior and lower natural water holding.</p>
+    </article>
+    <article class="soil-class-card clay">
+      <span class="soil-class-code">04</span>
+      <h3>Clay Soil</h3>
+      <p>Fine-textured soil that holds water strongly and needs careful drainage management.</p>
+    </article>
+    <article class="soil-class-card laterite">
+      <span class="soil-class-code">05</span>
+      <h3>Laterite Soil</h3>
+      <p>Iron-rich reddish soil common in warm regions, useful after proper fertility management.</p>
+    </article>
+    <article class="soil-class-card peat">
+      <span class="soil-class-code">06</span>
+      <h3>Peat Soil</h3>
+      <p>Organic-rich dark soil with high moisture content and special handling requirements.</p>
+    </article>
+    <article class="soil-class-card red">
+      <span class="soil-class-code">07</span>
+      <h3>Red Soil</h3>
+      <p>Iron oxide-rich soil with moderate fertility and good suitability for several dryland crops.</p>
+    </article>
+    <article class="soil-class-card yellow">
+      <span class="soil-class-code">08</span>
+      <h3>Yellow Soil</h3>
+      <p>Weathered soil with yellowish color, often requiring nutrient support for stronger yields.</p>
+    </article>
+  </div>
+</section>
+
 <footer class="footer">
   <div class="footer-content">
     <div class="footer-brand">

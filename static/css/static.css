@@ -105,6 +105,8 @@ body > *:not(.bg-canvas):not(.grain-overlay) { position: relative; z-index: 2; }
   align-items: center;
   gap: 12px;
   cursor: pointer;
+  color: var(--c-text);
+  text-decoration: none;
 }
 
 .brand-icon {
@@ -268,6 +270,89 @@ height: 100%;
   box-shadow: 0 4px 30px var(--c-glow);
 }
 .hero-cta:hover { transform: translateY(-3px); box-shadow: 0 8px 40px var(--c-glow); }
+
+.soil-classes-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 4rem 5rem;
+}
+
+.soil-classes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.soil-class-card {
+  position: relative;
+  min-height: 190px;
+  padding: 1.35rem;
+  overflow: hidden;
+  background: linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025));
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(14px);
+  transition: var(--transition);
+}
+
+.soil-class-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--soil-card-color, var(--c-accent)), transparent 55%);
+  opacity: 0.13;
+  pointer-events: none;
+}
+
+.soil-class-card:hover {
+  border-color: color-mix(in srgb, var(--soil-card-color, var(--c-accent)) 60%, transparent);
+  box-shadow: 0 20px 55px rgba(0,0,0,0.22);
+  transform: translateY(-4px);
+}
+
+.soil-class-code {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 30px;
+  margin-bottom: 1.4rem;
+  border: 1px solid color-mix(in srgb, var(--soil-card-color, var(--c-accent)) 55%, transparent);
+  border-radius: 999px;
+  color: var(--soil-card-color, var(--c-accent));
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(255,255,255,0.05);
+}
+
+.soil-class-card h3,
+.soil-class-card p {
+  position: relative;
+}
+
+.soil-class-card h3 {
+  margin-bottom: 0.65rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0;
+}
+
+.soil-class-card p {
+  color: var(--c-muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.soil-class-card.alluvial { --soil-card-color: #82c66f; }
+.soil-class-card.black { --soil-card-color: #9ca3af; }
+.soil-class-card.cinder { --soil-card-color: #64748b; }
+.soil-class-card.clay { --soil-card-color: #d97706; }
+.soil-class-card.laterite { --soil-card-color: #b45309; }
+.soil-class-card.peat { --soil-card-color: #92400e; }
+.soil-class-card.red { --soil-card-color: #ef4444; }
+.soil-class-card.yellow { --soil-card-color: #facc15; }
 
 /* Globe visual */
 .hero-visual {
@@ -3399,4 +3484,126 @@ button[type="submit"],
 
 .preview-image-wrap:hover .preview-overlay {
   background: rgba(15,23,42,0.24) !important;
+}
+
+/* Home soil classes and clickable logo final overrides */
+.navbar .nav-brand {
+  color: #f8fafc !important;
+  text-decoration: none;
+}
+
+.soil-classes-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 4rem 5rem;
+}
+
+.soil-classes-section .section-header {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto 2rem;
+}
+
+.soil-classes-section .hero-badge {
+  margin-bottom: 1rem;
+}
+
+.soil-classes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.soil-class-card {
+  --soil-card-color: var(--c-accent);
+  position: relative;
+  min-height: 190px;
+  overflow: hidden;
+  padding: 1.35rem;
+  background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(245,250,247,0.84));
+  border: 1px solid rgba(31, 41, 55, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(14px);
+  transition: var(--transition);
+}
+
+.soil-class-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--soil-card-color), transparent 58%);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.soil-class-card:hover {
+  border-color: var(--soil-card-color);
+  box-shadow: 0 20px 55px rgba(15, 23, 42, 0.14);
+  transform: translateY(-4px);
+}
+
+.soil-class-code {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 30px;
+  margin-bottom: 1.35rem;
+  border: 1px solid var(--soil-card-color);
+  border-radius: 999px;
+  color: var(--soil-card-color);
+  background: rgba(255,255,255,0.72);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.soil-class-card h3,
+.soil-class-card p {
+  position: relative;
+}
+
+.soil-class-card h3 {
+  margin-bottom: 0.65rem;
+  color: #0f172a !important;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0;
+}
+
+.soil-class-card p {
+  color: #475569 !important;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.soil-class-card.alluvial { --soil-card-color: #2f9e63; }
+.soil-class-card.black { --soil-card-color: #64748b; }
+.soil-class-card.cinder { --soil-card-color: #475569; }
+.soil-class-card.clay { --soil-card-color: #d97706; }
+.soil-class-card.laterite { --soil-card-color: #b45309; }
+.soil-class-card.peat { --soil-card-color: #92400e; }
+.soil-class-card.red { --soil-card-color: #dc2626; }
+.soil-class-card.yellow { --soil-card-color: #ca8a04; }
+
+@media (max-width: 1100px) {
+  .soil-classes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .soil-classes-section {
+    padding: 1rem 1rem 3rem;
+  }
+
+  .soil-classes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .soil-class-card {
+    min-height: 0;
+  }
 }
