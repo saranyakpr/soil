@@ -103,15 +103,14 @@ def create_app(config_name='development'):
     logger.info("Soil Vision 360 application initialized successfully")
     return app
 
+env = os.environ.get('FLASK_ENV', 'development')
+app = create_app(env)
+
 if __name__ == '__main__':
-    env = os.environ.get('FLASK_ENV', 'development')
-    app = create_app(env)
+    port = int(os.environ.get('PORT', 5001))
     app.run(
         host='0.0.0.0',
-        port=int(os.environ.get('PORT', 5000)),
+        port=port,
         debug=(env == 'development'),
         use_reloader=False
     )
-
-
-    print(app.config["SQLALCHEMY_DATABASE_URI"])

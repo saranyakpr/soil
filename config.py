@@ -12,7 +12,18 @@ try:
     from dotenv import load_dotenv
     load_dotenv()
 except ImportError:
-    pass
+    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+    if os.path.exists(env_path):
+        with open(env_path, encoding='utf-8') as env_file:
+            for raw_line in env_file:
+                line = raw_line.strip()
+                if not line or line.startswith('#') or '=' not in line:
+                    continue
+
+                key, value = line.split('=', 1)
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                os.environ.setdefault(key, value)
 
 
 class Config:
@@ -63,11 +74,11 @@ class Config:
     # Weather/Climate API
     OPENWEATHER_API_KEY = os.environ.get('OPENWEATHER_API_KEY', '')
 
-    # SoilBot AI provider - SambaNova Cloud
-    SAMBANOVA_API_KEY = os.environ.get('SAMBANOVA_API_KEY', '')
-    SAMBANOVA_BASE_URL = os.environ.get('SAMBANOVA_BASE_URL', 'https://api.sambanova.ai/v1')
-    SAMBANOVA_MODEL = os.environ.get('SAMBANOVA_MODEL', 'Meta-Llama-3.3-70B-Instruct')
-    SAMBANOVA_TIMEOUT = int(os.environ.get('SAMBANOVA_TIMEOUT', 30))
+    # SoilBot AI provider - Hugging Face Inference Providers
+    HUGGINGFACE_API_KEY = os.environ.get('HUGGINGFACE_API_KEY') or os.environ.get('HF_TOKEN', '')
+    HUGGINGFACE_BASE_URL = os.environ.get('HUGGINGFACE_BASE_URL', 'https://router.huggingface.co/v1')
+    HUGGINGFACE_MODEL = os.environ.get('HUGGINGFACE_MODEL', 'Qwen/Qwen2.5-7B-Instruct:fastest')
+    HUGGINGFACE_TIMEOUT = int(os.environ.get('HUGGINGFACE_TIMEOUT', 30))
     
     # OAuth Settings
     GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')

@@ -18,19 +18,34 @@ def clean_tamil(text):
     # remove only full english words, keep numbers & symbols
     return re.sub(r'\b[A-Za-z]{2,}\b', '', text)
 
-def ask_sambanova(prompt, lang="en"):
-    api_key = current_app.config.get("SAMBANOVA_API_KEY") or os.environ.get("SAMBANOVA_API_KEY")
+def ask_huggingface(prompt, lang="en"):
+    api_key = (
+        current_app.config.get("HUGGINGFACE_API_KEY")
+        or os.environ.get("HUGGINGFACE_API_KEY")
+        or os.environ.get("HF_TOKEN")
+    )
+    api_key = api_key.strip() if api_key else ""
     if not api_key:
+        logger.warning("Hugging Face request skipped: missing HUGGINGFACE_API_KEY or HF_TOKEN")
         return None
 
     try:
-        base_url = current_app.config.get("SAMBANOVA_BASE_URL", "https://api.sambanova.ai/v1").rstrip("/")
-        model = current_app.config.get("SAMBANOVA_MODEL", "Meta-Llama-3.3-70B-Instruct")
-        timeout = current_app.config.get("SAMBANOVA_TIMEOUT", 30)
+        base_url = current_app.config.get(
+            "HUGGINGFACE_BASE_URL",
+            "https://router.huggingface.co/v1",
+        ).rstrip("/")
+        model = current_app.config.get(
+            "HUGGINGFACE_MODEL",
+            "Qwen/Qwen2.5-7B-Instruct:fastest",
+        ).strip()
+        timeout = current_app.config.get("HUGGINGFACE_TIMEOUT", 30)
+        system_prompt = (
+            "You are SoilBot 360, a professional civil engineering and soil "
+            "science assistant. Give concise practical answers. Reply in "
+            f"{'Tamil' if lang == 'ta' else 'English'}."
+        )
 
-        session = requests.Session()
-        session.trust_env = False
-        response = session.post(
+        response = requests.post(
             f"{base_url}/chat/completions",
             headers={
                 "Authorization": f"Bearer {api_key}",
@@ -39,14 +54,7 @@ def ask_sambanova(prompt, lang="en"):
             json={
                 "model": model,
                 "messages": [
-                    {
-                        "role": "system",
-                        "content": (
-                            "You are SoilBot 360, a professional civil engineering "
-                            "and soil science assistant. Give concise practical answers. "
-                            f"Reply in {'Tamil' if lang == 'ta' else 'English'}."
-                        ),
-                    },
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt},
                 ],
                 "temperature": 0.2,
@@ -55,20 +63,27 @@ def ask_sambanova(prompt, lang="en"):
             },
             timeout=timeout,
         )
+        if not response.ok:
+            logger.warning(
+                "Hugging Face request failed with status %s: %s",
+                response.status_code,
+                response.text[:500],
+            )
         response.raise_for_status()
         data = response.json()
         choices = data.get("choices") or []
         if not choices:
+            logger.warning("Hugging Face response did not include choices: %s", data)
             return None
 
         message = choices[0].get("message") or {}
         content = message.get("content")
         if content:
-            return content
+            return content.strip()
         return choices[0].get("text")
 
     except Exception as e:
-        logger.warning(f"SambaNova request failed: {e}")
+        logger.warning(f"Hugging Face request failed: {e}")
         return None
 
 soil_layers = {
@@ -440,7 +455,7 @@ def chatbot():
     if rule_reply:
         return jsonify({"success": True, "response": rule_reply})
 
-    # 2. If rules do not answer it, ask SambaNova.
+    # 2. If rules do not answer it, ask Hugging Face.
     prompt = f"""
     Act as a professional Civil Engineer and Soil Expert.
     User Question: {message}
@@ -450,7 +465,7 @@ def chatbot():
     Do NOT use poetic or mysterious language.
     """
 
-    ai_reply = ask_sambanova(prompt, lang)
+    ai_reply = ask_huggingface(prompt, lang)
 
     if not ai_reply:
         return jsonify({
@@ -471,6 +486,26 @@ def chatbot():
     return jsonify({
         "success": True, 
         "response": ai_reply.strip()
+    })
+
+
+@api_bp.route('/chatbot/debug', methods=['GET'])
+def chatbot_debug():
+    api_key = (
+        current_app.config.get("HUGGINGFACE_API_KEY")
+        or os.environ.get("HUGGINGFACE_API_KEY")
+        or os.environ.get("HF_TOKEN")
+        or ""
+    ).strip()
+
+    return jsonify({
+        "success": True,
+        "provider": "huggingface",
+        "has_api_key": bool(api_key),
+        "api_key_prefix": api_key[:3] if api_key else "",
+        "base_url": current_app.config.get("HUGGINGFACE_BASE_URL"),
+        "model": current_app.config.get("HUGGINGFACE_MODEL"),
+        "timeout": current_app.config.get("HUGGINGFACE_TIMEOUT"),
     })
 
 
