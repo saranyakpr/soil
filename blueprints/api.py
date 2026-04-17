@@ -13,42 +13,62 @@ from utils.soil_analyzer import get_crop_growth_simulation
 from models.soil_model import analyze_soil_image
 import requests
 import re
-import google.generativeai as genai
 
 def clean_tamil(text):
     # remove only full english words, keep numbers & symbols
     return re.sub(r'\b[A-Za-z]{2,}\b', '', text)
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-
-def ask_gemini(prompt):
-    if not GEMINI_API_KEY:
+def ask_sambanova(prompt, lang="en"):
+    api_key = current_app.config.get("SAMBANOVA_API_KEY") or os.environ.get("SAMBANOVA_API_KEY")
+    if not api_key:
         return None
 
     try:
-        # உங்கள் API Key-க்கு அனுமதிக்கப்பட்ட மாடல்களைத் தேடுதல்
-        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-        print("சரியான மாடல்கள் இவைதான்:", available_models)
+        base_url = current_app.config.get("SAMBANOVA_BASE_URL", "https://api.sambanova.ai/v1").rstrip("/")
+        model = current_app.config.get("SAMBANOVA_MODEL", "Meta-Llama-3.3-70B-Instruct")
+        timeout = current_app.config.get("SAMBANOVA_TIMEOUT", 30)
 
-        # 'models/gemini-1.5-flash' அல்லது 'models/gemini-pro' இதில் எது இருந்தாலும் எடுக்கும்
-        target_model = "models/gemini-1.5-flash" 
-        if target_model not in available_models:
-            # ஒருவேளை 1.5 இல்லையென்றால், இருக்கும் முதல் மாடலை எடுக்கும்
-            target_model = available_models[0] if available_models else "models/gemini-pro"
+        session = requests.Session()
+        session.trust_env = False
+        response = session.post(
+            f"{base_url}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": model,
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are SoilBot 360, a professional civil engineering "
+                            "and soil science assistant. Give concise practical answers. "
+                            f"Reply in {'Tamil' if lang == 'ta' else 'English'}."
+                        ),
+                    },
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": 0.2,
+                "max_tokens": 220,
+                "stream": False,
+            },
+            timeout=timeout,
+        )
+        response.raise_for_status()
+        data = response.json()
+        choices = data.get("choices") or []
+        if not choices:
+            return None
 
-        model = genai.GenerativeModel(target_model)
-        response = model.generate_content(prompt)
-        
-        if response and response.text:
-            return response.text
-        return "No response from AI"
+        message = choices[0].get("message") or {}
+        content = message.get("content")
+        if content:
+            return content
+        return choices[0].get("text")
 
     except Exception as e:
-        print("GEMINI FINAL ERROR:", str(e))
-        logger.warning(f"Gemini request failed: {e}")
+        logger.warning(f"SambaNova request failed: {e}")
         return None
 
 soil_layers = {
@@ -420,18 +440,17 @@ def chatbot():
     if rule_reply:
         return jsonify({"success": True, "response": rule_reply})
 
-    # 2. Rules-ல் பதில் இல்லை என்றால் மட்டும் Gemini-யிடம் கேட்கவும்
-    # ப்ராம்ப்ட்டை (Prompt) இன்னும் தெளிவாக மாற்றியுள்ளேன்
+    # 2. If rules do not answer it, ask SambaNova.
     prompt = f"""
-    Act as a professional Civil Engineer and Soil Expert. 
+    Act as a professional Civil Engineer and Soil Expert.
     User Question: {message}
-    Context: The soil type is {soil_type}. 
-    Instruction: Give a direct, technical, and helpful answer in 2 lines. 
-    Language: {'Tamil' if lang=='ta' else 'English'}. 
+    Context: The soil type is {soil_type}.
+    Instruction: Give a direct, technical, and helpful answer in 2 lines.
+    Language: {'Tamil' if lang=='ta' else 'English'}.
     Do NOT use poetic or mysterious language.
     """
 
-    ai_reply = ask_gemini(prompt)
+    ai_reply = ask_sambanova(prompt, lang)
 
     if not ai_reply:
         return jsonify({
@@ -512,5 +531,4 @@ def _generate_chatbot_response(message, soil_type, construction_score, crop_scor
         else:
             return f"{soil_type} needs soil treatment as the crop score is only {crop_score}%."
 
-    # பதில் கிடைக்கவில்லை என்றால் None அனுப்பவும் (அப்போது Gemini AI வேலை செய்யும்)
     return None

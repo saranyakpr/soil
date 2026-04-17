@@ -17,7 +17,7 @@ except ImportError:
 
 class Config:
     """Base configuration"""
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'AIzaSyC7a7325C6RHFMfMTWTfj-zHGqQzWTGly0'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'change-this-secret-key-in-production'
     
     # Database
     MYSQL_HOST = os.environ.get("DB_HOST", "127.0.0.1")
@@ -62,6 +62,12 @@ class Config:
     
     # Weather/Climate API
     OPENWEATHER_API_KEY = os.environ.get('OPENWEATHER_API_KEY', '')
+
+    # SoilBot AI provider - SambaNova Cloud
+    SAMBANOVA_API_KEY = os.environ.get('SAMBANOVA_API_KEY', '')
+    SAMBANOVA_BASE_URL = os.environ.get('SAMBANOVA_BASE_URL', 'https://api.sambanova.ai/v1')
+    SAMBANOVA_MODEL = os.environ.get('SAMBANOVA_MODEL', 'Meta-Llama-3.3-70B-Instruct')
+    SAMBANOVA_TIMEOUT = int(os.environ.get('SAMBANOVA_TIMEOUT', 30))
     
     # OAuth Settings
     GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
