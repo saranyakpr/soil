@@ -105,6 +105,7 @@ def create_app(config_name='development'):
 
 env = os.environ.get('FLASK_ENV', 'development')
 app = create_app(env)
+logger.info("Runtime PORT environment value: %s", os.environ.get('PORT', 'not set'))
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))
