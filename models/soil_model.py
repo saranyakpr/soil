@@ -941,6 +941,7 @@ class SoilAIModel:
         import json
         from tensorflow.keras.models import load_model
         self.model = None
+        self.load_error = ""
 
         model_url = os.environ.get("SOIL_MODEL_URL")
         print(f"Soil AI model file status: {self._model_file_status(model_path)}")
@@ -993,6 +994,7 @@ class SoilAIModel:
         try:
             self.model = load_model(model_path, compile=False)
         except Exception as e:
+            self.load_error = str(e)
             print(f"AI model unavailable, RGB fallback will be used: {e}")
 
         self.classes = [
@@ -1008,7 +1010,8 @@ class SoilAIModel:
 
     def predict(self, image_path):
         if self.model is None:
-            raise RuntimeError("AI model is unavailable")
+            details = f": {self.load_error}" if self.load_error else ""
+            raise RuntimeError(f"AI model is unavailable{details}")
 
         img = Image.open(image_path).convert("RGB")
         img = img.resize((224,224))
