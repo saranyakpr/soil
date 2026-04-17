@@ -10,7 +10,6 @@ from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
 from models.database import db, SoilReport,User
 from utils.soil_analyzer import get_crop_growth_simulation
-from models.soil_model import analyze_soil_image
 import requests
 import re
 
@@ -197,7 +196,10 @@ def analyze_soil():
         user_id = request.form.get('user_id')
         lang = request.form.get("lang", "en")
         
-        # Analyze soil
+        # Analyze soil. Import lazily so deployment health/startup does not load
+        # TensorFlow or the .h5 model before the web process is ready.
+        from models.soil_model import analyze_soil_image
+
         analysis = analyze_soil_image(filepath)
         # 🔥 FIX: normalize construction data
         ca = analysis.get("construction_advice", {})
