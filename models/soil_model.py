@@ -314,6 +314,8 @@ class SoilReport:
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     user_id: Optional[int] = None
+    prediction_source: str = "unknown"
+    prediction_error: str = ""
     # Predicted soil layers
     layers: List[dict] = field(default_factory=list)
 
@@ -366,6 +368,8 @@ class SoilReport:
             "nutrients": self.nutrients.to_dict(),
             "crop_recommendations": self.crop_recommendations.to_dict(),
             "construction_advice": self.construction_advice.to_dict(),
+            "prediction_source": self.prediction_source,
+            "prediction_error": self.prediction_error,
 
             # Geo
             "district": self.district,
@@ -1427,9 +1431,13 @@ class SoilModel:
         color = self.reader.read(image_path)
 
         # 2. Classify
+        prediction_source = "ai_model"
+        prediction_error = ""
         try:
             soil_type, confidence = self._get_ai_model().predict(image_path)
         except Exception as e:
+            prediction_source = "rgb_fallback"
+            prediction_error = str(e)
             print(f"AI prediction unavailable, RGB fallback will be used: {e}")
             soil_type, confidence = self.classifier.classify(color)
 
@@ -1495,6 +1503,8 @@ class SoilModel:
             crop_recommendations = crop_recs,
             construction_advice  = const_advice,
             user_id              = user_id,
+            prediction_source     = prediction_source,
+            prediction_error      = prediction_error,
             layers               = layers,
         )
 

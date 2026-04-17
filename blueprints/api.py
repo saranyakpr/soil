@@ -230,6 +230,24 @@ def analyze_soil():
         from models.soil_model import analyze_soil_image
 
         analysis = analyze_soil_image(filepath)
+        if (
+            not current_app.config.get("DEBUG", False)
+            and analysis.get("prediction_source") == "rgb_fallback"
+        ):
+            logger.error(
+                "Soil AI model unavailable in production: %s",
+                analysis.get("prediction_error"),
+            )
+            return jsonify({
+                "success": False,
+                "error": "Soil AI model unavailable",
+                "message": (
+                    "The deployed app is using the RGB fallback instead of the "
+                    "trained .h5 model. Check SOIL_MODEL_URL and model download logs."
+                ),
+                "model": get_soil_model_file_status(),
+                "prediction_error": analysis.get("prediction_error"),
+            }), 503
         # 🔥 FIX: normalize construction data
         ca = analysis.get("construction_advice", {})
 

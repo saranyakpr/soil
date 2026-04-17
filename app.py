@@ -103,7 +103,9 @@ def create_app(config_name='development'):
     logger.info("Soil Vision 360 application initialized successfully")
     return app
 
-env = os.environ.get('FLASK_ENV', 'development')
+env = os.environ.get('FLASK_ENV') or (
+    'production' if os.environ.get('RAILWAY_ENVIRONMENT') else 'development'
+)
 app = create_app(env)
 logger.info("Runtime PORT environment value: %s", os.environ.get('PORT', 'not set'))
 
