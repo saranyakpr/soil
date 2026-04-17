@@ -905,6 +905,16 @@ class SoilAIModel:
         except OSError:
             return True
 
+    @classmethod
+    def _model_file_status(cls, model_path):
+        exists = os.path.exists(model_path)
+        size_bytes = os.path.getsize(model_path) if exists else 0
+        return {
+            "exists": exists,
+            "size_mb": round(size_bytes / (1024 * 1024), 2),
+            "is_lfs_pointer": exists and cls._needs_model_download(model_path),
+        }
+
     @staticmethod
     def _download_model(model_url, model_path):
         import requests
@@ -929,6 +939,7 @@ class SoilAIModel:
         self.model = None
 
         model_url = os.environ.get("SOIL_MODEL_URL")
+        print(f"Soil AI model file status: {self._model_file_status(model_path)}")
         if self._needs_model_download(model_path) and model_url:
             try:
                 print("Downloading soil AI model from SOIL_MODEL_URL...")

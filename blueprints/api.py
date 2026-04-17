@@ -148,6 +148,35 @@ api_bp = Blueprint('api', __name__)
 logger = logging.getLogger(__name__)
 
 
+def get_soil_model_file_status():
+    model_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "models",
+        "soil_model.h5",
+    )
+    exists = os.path.exists(model_path)
+    size_bytes = os.path.getsize(model_path) if exists else 0
+    is_lfs_pointer = False
+
+    if exists:
+        try:
+            with open(model_path, "rb") as model_file:
+                is_lfs_pointer = model_file.read(128).startswith(
+                    b"version https://git-lfs.github.com/spec/"
+                )
+        except OSError:
+            is_lfs_pointer = False
+
+    return {
+        "exists": exists,
+        "size_bytes": size_bytes,
+        "size_mb": round(size_bytes / (1024 * 1024), 2),
+        "is_lfs_pointer": is_lfs_pointer,
+        "soil_model_url_configured": bool(os.environ.get("SOIL_MODEL_URL")),
+        "path": model_path,
+    }
+
+
 def allowed_file(filename):
     """Check if file extension is allowed"""
     allowed = current_app.config.get('ALLOWED_EXTENSIONS', {'png', 'jpg', 'jpeg', 'gif'})
@@ -443,6 +472,14 @@ def get_dashboard_stats():
 # ─────────────────────────────────────────────────────────────────────────────
 # CHATBOT
 # ─────────────────────────────────────────────────────────────────────────────
+@api_bp.route('/model/status', methods=['GET'])
+def model_status():
+    return jsonify({
+        "success": True,
+        "model": get_soil_model_file_status(),
+    }), 200
+
+
 @api_bp.route('/chatbot', methods=['POST'])
 def chatbot():
     data = request.get_json()
